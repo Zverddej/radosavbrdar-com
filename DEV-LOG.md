@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 002 — Phase 2: Locale Routing + Layout Shell — 2026-07-11
 STATUS: DONE
-COMMITS: pending
+COMMITS: 3f57e93 (code + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 DONE:
