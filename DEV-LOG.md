@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 001 — Phase 1: Repo + Design System — 2026-07-11
 STATUS: DONE
-COMMITS: pending (this commit)
+COMMITS: 509189c (code + this entry), follow-up hash-record commit
 MODEL: Fable 5 / Claude Code
 
 DONE:
