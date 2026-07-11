@@ -18,9 +18,10 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
+// TODO: final title/description copy — wired per-page from Phase 7 (SEO/GEO).
 export const metadata: Metadata = {
   title: "Radosav Brdar · identitet studio",
-  description: "Design system preview — Blueprint Terminal.",
+  description: "Radosav Brdar · identitet studio.",
 };
 
 export default function RootLayout({
