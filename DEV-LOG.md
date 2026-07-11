@@ -30,6 +30,36 @@ NEXT STEP:
 
 -->
 
+### 003 — Phase 3: Content Layer + Home — 2026-07-11
+STATUS: DONE
+COMMITS: pending
+MODEL: Sonnet 5 / Claude Code
+
+DONE:
+- `content/types.ts` — `HomeContent`, `ServiceContent`, `CaseStub`, `CTALink` interfaces. Reuses `StatusStripItem` from `components/StatusStrip.tsx` for the credibility strip rather than redeclaring it.
+- `content/en/home.ts` — full Home copy, verbatim from `website-copy-tournament.md` PART 5 → HOME. Proof-strip case data (title/problem/stack/outcome) is verbatim frontmatter from `content-of-record-completion.md` PART 1, the four `featured: true` cases in their listed `order` (archive-rag, tennis-club-saas, cosmetics-brand, legal-ai) — same source Phase 5 will use for the real `/work/[slug]` pages, so Home won't drift from them later.
+- `lib/content.ts` — `getContent(locale, page)`, a small `Record<Locale, Partial<ContentMap>>` map with `en` fallback for `sr`, exactly as specced (no dynamic import magic).
+- `components/CaseCard.tsx` — shared component: title, one-line problem, mono `stack: a · b · c` line, outcome.
+- `app/[locale]/page.tsx` — full Home, all 7 sections as local components/JSX reading only from `getContent(locale, "home")`: Hero (h1, subline, mono identity line, two CTAs), Sovereignty beat, three Services (each ending in a mono "what you own" line), Differentiation block, Proof strip (4 `CaseCard`s + "All work →"), Credibility `StatusStrip`, CTA block (Email/LinkedIn/Book a call).
+
+ACCEPTANCE CHECK:
+- [x] Home renders all 7 sections with tournament copy, EN — verified via Puppeteer screenshots (1440px settled after the StatusStrip type-in, 375px full-page) and a DOM text-content check confirming all four credibility items are present post-animation.
+- [x] No copy hardcoded in JSX — every section reads from `content.*`; grepped `app/[locale]/page.tsx` for stray literal sentence strings, none found (only structural `className`s and the `href(locale, cta)` helper).
+- [x] Responsive 375px–1440px; build passes — `scrollWidth === clientWidth === 375` at mobile (no horizontal overflow), zero TS errors, both locale routes prerendered as static HTML.
+
+DEVIATIONS FROM PLAN:
+- Section 6 (credibility) copy in the tournament doc is four full sentences ("30 years in visual & web technology", "60M+ views on Google Maps imagery", "2 production private-AI deployments", "400+ companies on an invoicing platform I built and maintain"), not `label: value` pairs — but `StatusStrip` (locked Phase 1 signature component) requires that shape, and Phase 1's own spec text illustrates exactly this pattern (`uptime: 30y · deployments: 2 · maps_views: 60M+`). Added four short structural labels (`experience`, `reach`, `deployments`, `platform`) not present in the source; every sentence itself is unchanged as the `value`. Flagging since "verbatim" is a hard rule — this is a structural fit, not a copy rewrite, but worth Rade's eyes.
+- Proof-strip card titles use the case studies' actual frontmatter `title` field from `content-of-record-completion.md` (e.g. "Skinissima — Brand Foundation to Production Website") rather than the tournament doc's shorter descriptive label for that slot ("Natural Cosmetics Brand & Web"). Both are content-of-record; picked the frontmatter version because Phase 5 will render real `/work/[slug]` pages from that same source, so Home and Work stay consistent instead of showing two different titles for the same case.
+- CTA hrefs left as `"#"` with inline `// TODO:` comments for: hero "Book a call", and CTA-block "Email" / "LinkedIn" / "Book a call" — all three depend on decisions still open per DEV-LOG 000 (contact email, LinkedIn URL, booking tool) and `content-of-record-completion.md` PART 3. Not invented. "See the work" and "All work" safely route to `/work` (internal route already established by the plan/Nav, not an invented external value).
+- Confirmed via DEV-LOG 000 that Skinissima naming is already approved ("Skinissima = yes") before using it on the public Home page, even though `content-of-record-completion.md` itself still shows that case's naming as `TODO: confirm ... (assumed yes...)` — DEV-LOG is the authoritative record per protocol, and it already closed this item.
+
+OPEN TODOs INTRODUCED:
+- `content/en/home.ts` — 4 CTA hrefs (`"#"`) pending Rade: contact email, LinkedIn URL, booking-tool decision. Carried from Phase 0/Contact-page open items, not new.
+- Structural StatusStrip labels on the credibility strip (see DEVIATIONS) — flagging for Rade's review, not a blocking TODO.
+
+NEXT STEP:
+- Rade reviews the Home page (copy accuracy, the credibility-strip label choice, the Skinissima title choice) → then Phase 4: Services + AI Assessment (`app/[locale]/services/page.tsx`, `app/[locale]/ai-assessment/page.tsx`, matching content files, verbatim from `website-copy-tournament.md` SERVICES section and `ai-assessment-tournament.md` PART 4).
+
 ### 002 — Phase 2: Locale Routing + Layout Shell — 2026-07-11
 STATUS: DONE (reopened once after real-device smoke test — see BUG FOUND AFTER "DONE" below)
 COMMITS: 3f57e93, 1ff88fb (original), d9303a2 (reopen fix + this entry), follow-up hash-record commit
