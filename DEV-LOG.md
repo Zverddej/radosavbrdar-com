@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 002 — Phase 2: Locale Routing + Layout Shell — 2026-07-11
 STATUS: DONE (reopened once after real-device smoke test — see BUG FOUND AFTER "DONE" below)
-COMMITS: 3f57e93, 1ff88fb (original), pending (reopen fix + this entry update)
+COMMITS: 3f57e93, 1ff88fb (original), d9303a2 (reopen fix + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 DONE:
