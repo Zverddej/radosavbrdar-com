@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 003 — Phase 3: Content Layer + Home — 2026-07-11
 STATUS: DONE
-COMMITS: pending
+COMMITS: 7d3305d (code + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 DONE:
