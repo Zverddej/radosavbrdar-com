@@ -31,28 +31,37 @@ NEXT STEP:
 -->
 
 ### 002 — Phase 2: Locale Routing + Layout Shell — 2026-07-11
-STATUS: DONE
-COMMITS: 3f57e93 (code + this entry), follow-up hash-record commit
+STATUS: DONE (reopened once after real-device smoke test — see BUG FOUND AFTER "DONE" below)
+COMMITS: 3f57e93, 1ff88fb (original), pending (reopen fix + this entry update)
 MODEL: Sonnet 5 / Claude Code
 
 DONE:
 - `lib/i18n.ts` — `locales = ['en','sr']`, `defaultLocale = 'en'`, `Locale` type, `isLocale()` guard.
 - `proxy.ts` (see DEVIATIONS) — redirects `/` → `/en`, matcher `"/"` only, nothing else.
 - `app/[locale]/layout.tsx` — `generateStaticParams` for both locales, `notFound()` on invalid locale param, renders `<Nav>` + `<main>` + `<Footer>`.
-- `components/Nav.tsx` — client component: logo (`radosav brdar` + mono `identitet` suffix, suffix hidden below `sm` to keep the lockup comfortable at 375px), 5 nav links (Work/Services/AI Assessment/About/Contact — all still 404 until later phases build those routes, expected), EN/SR locale switcher (segment-replace on current pathname, so it works at any depth once nested routes exist), mobile disclosure menu (native `<button>`, `aria-expanded`/`aria-controls`, no library).
+- `components/Nav.tsx` — client component (needs `usePathname` for the locale switcher regardless of toggle mechanism): logo (`radosav brdar` + mono `identitet` suffix, suffix hidden below `sm` to keep the lockup comfortable at 375px), 5 nav links (Work/Services/AI Assessment/About/Contact — all still 404 until later phases build those routes, expected), EN/SR locale switcher (segment-replace on current pathname, so it works at any depth once nested routes exist), mobile disclosure menu built on native `<details>/<summary>` (open/close is fully browser-native, no React state — see BUG FOUND below for why).
 - `components/Footer.tsx` — Contact + Privacy links, imprint line (`identitet — Radosav Brdar · Sombor, Serbia`, sourced from content-of-record PART 2; full legal imprint is a Phase 6 TODO already tracked).
 - `app/[locale]/page.tsx` — placeholder Home ("home: pending Phase 3").
 - Deleted `app/page.tsx` (Phase 1 token showcase).
 - `app/layout.tsx` — trimmed the stale "Design system preview" metadata description left over from the showcase; final title/description marked TODO for Phase 7.
 
-ACCEPTANCE CHECK:
-- [x] `/` redirects to `/en` (307); `/en` and `/sr` render (200); `/xx` returns 404 — verified via curl against a production build/start on a scratch port.
-- [x] Nav works on mobile (375px) and desktop; keyboard navigable — verified with a Puppeteer-driven Chrome (real CDP screenshot + interaction, not the `google-chrome --headless --screenshot` CLI, which produced a false negative — see DEVIATIONS). Confirmed: mobile menu button renders and opens the disclosure; Tab order after opening cycles through all 5 links + EN correctly as real `<a>` elements (native focus, global `:focus-visible` amber outline applies).
-- [x] Locale switcher preserves current path — verified the segment-replace mechanism on `/en` → `/sr` (href correctly resolves to `/sr`). `/en/work` → `/sr/work` from the plan's example can't be exercised yet since `/work` doesn't exist until Phase 5; the mechanism is depth-agnostic so it will hold once that route ships.
-- [x] `npm run build` — zero TS errors, both locale routes prerendered as static HTML.
+BUG FOUND AFTER "DONE" (real-device smoke test):
+- First pass shipped the mobile disclosure as a `<button onClick={...}>` + `useState` toggle (React-driven). It passed every automated check at the time, including a Puppeteer `page.click()` interaction test — but Rade's real-device smoke test found that **tapping the button on an actual phone did nothing.**
+- Root cause was NOT the suspected "use client" directive (it was present, correctly, from the first commit) — ruled out immediately on inspection. The `onClick`+`useState` mechanism is inherently more fragile on real touch hardware than automated mouse-click emulation reveals (hydration timing, touch-to-click synthesis, small tap targets — Puppeteer's `page.click()` dispatches a synthetic mouse event at the element's bounding-box center, which is not equivalent to a real touchstart/touchend sequence on a device).
+- Fix: rebuilt the disclosure with native `<details>/<summary>` — the open/close state is now entirely browser-native (toggling the `open` attribute), so it can't be broken by React hydration races, missed touch events, or JS failing to load at all. `components/Nav.tsx` no longer imports `useState`.
+- That rebuild introduced a second, genuine bug caught during the fix's own verification: the mobile-nav `<nav>` was styled `absolute inset-x-0 top-full` (to escape the header's flex row and render full-width below it). Measured via Puppeteer (`getComputedStyle` + `offsetHeight`) that this **defeated the browser's native hiding of un-opened `<details>` content** — `display` computed to `block` and the nav had nonzero height even while `<details>` was closed. Root cause not fully isolated (likely how Chrome's newer `<details>` content-hiding implementation interacts with descendants taken out of normal flow via `position: absolute`), but the fix doesn't depend on understanding it further: visibility is now explicit and self-contained — `hidden` by default, `group-open:block` when the ancestor `<details class="group">` has the `open` attribute (Tailwind's `open:`/`group-open:` variant, confirmed present in the installed Tailwind v4 build). The native open/close toggle itself is unaffected; only "how the hidden state is expressed in CSS" changed from implicit (native UA behavior) to explicit (authored classes).
+- Verified with real touch emulation this time: Puppeteer `page.emulate()` with an iPhone 12 profile (`isMobile: true`, `hasTouch: true`, mobile Safari UA) + `page.touchscreen.tap()` at the summary element's actual coordinates — confirmed closed → tap → `open` attribute set + all 7 links present and visible → tap again → closes. Also re-verified keyboard access: Tab reaches the `<summary>` (native focusability), `Enter` toggles `open` natively, and subsequent Tabs walk correctly through all 7 mobile-nav links.
+- Did not touch `app/not-found.tsx` or any 404 page styling — out of scope per the plan (explicitly Phase 8).
+
+ACCEPTANCE CHECK (re-run after the fix):
+- [x] `/` redirects to `/en` (307); `/en` and `/sr` render (200); `/xx` returns 404 — curl against a production build/start on a scratch port.
+- [x] Nav works on mobile (375px) and desktop; keyboard navigable — this time verified with real touch emulation (Puppeteer `page.emulate()` iPhone 12 profile + `page.touchscreen.tap()`, not `page.click()`) and a Chrome-CDP screenshot of both open/closed states. Keyboard: Tab → `<summary>` focus → `Enter` opens (native) → Tab walks all 7 links in order.
+- [x] Locale switcher preserves current path — segment-replace mechanism verified on `/en` → `/sr` (href resolves to `/sr`); `/en/work` → `/sr/work` from the plan's example still can't be exercised until `/work` ships in Phase 5, mechanism is depth-agnostic.
+- [x] `npm run build` — zero TS errors, zero warnings, both locale routes prerendered as static HTML.
 
 DEVIATIONS FROM PLAN:
 - Plan names the file `middleware.ts`. Next.js 16.2.10 deprecates that convention in favor of `proxy.ts` (function must be named/exported `proxy`, not `middleware`) — confirmed via the Next docs shipped in `node_modules`. Build succeeded either way (deprecation warning only), but per Rade's approval used `proxy.ts` now rather than carrying a warning that would need fixing later anyway. Same single responsibility as the plan specified (redirect `/` → `/en`, nothing else). This file is temporary regardless of name: Phase 8 (static export) drops proxy/middleware entirely and moves the redirect to a `_redirects` rule, per the plan's own Phase 8 approach — confirmed proxy is unsupported under static export in the Next docs.
+- Plan says "Mobile: simple disclosure menu, no library" without specifying the mechanism; shipped first with `onClick`/`useState`, reopened and rebuilt on native `<details>/<summary>` after the real-device failure above. No library either way; the disclosure is now zero-JS for its core open/close behavior.
 - Nav's brand lockup hides the `identitet` mono suffix below the `sm` breakpoint (640px) — not in the plan's literal spec, but a minimal fit adjustment for very narrow phones; full lockup still shows at ≥640px, well before the `md` breakpoint where the mobile disclosure switches to the desktop nav.
 - Footer imprint line uses only the already-approved content-of-record facts (studio name, Sombor/Serbia) — the full legal imprint (APR matični broj/PIB) stays a `// TODO` per CLAUDE.md; not inventing a registration number. Same for Contact: linked to `/contact` rather than a raw `mailto:`, since the contact email is still an open TODO (rade@identitet.rs vs hello@radosavbrdar.com) and shouldn't be guessed.
 
@@ -61,8 +70,11 @@ OPEN TODOs INTRODUCED:
 - `components/Footer.tsx` — full imprint line (legal form + APR matični broj/PIB), carried from Phase 0's open items, wired properly in Phase 6.
 - Pre-existing (not introduced this phase, but surfaced by `npm run lint`, which isn't part of any phase's ACCEPTANCE CHECK): `components/StatusStrip.tsx:33` — `react-hooks/immutability` flags the `elapsed` reassignment inside the `.map` used to stagger animation delays. Build passes; not touched since StatusStrip is out of Phase 2's file list. Flagging for whichever phase next touches that component.
 
+PROCESS NOTE FOR FUTURE PHASES:
+- Real-device smoke testing caught what automated desktop-click Puppeteer testing missed. Any interactive mobile UI (disclosure menus, future form controls, etc.) must be verified with **touch emulation** (`page.emulate()` with a real device profile + `page.touchscreen.tap()`) as part of its acceptance check, not `page.click()`, and ideally spot-checked on an actual device before marking a phase DONE. Prefer native HTML disclosure/interaction elements (`<details>`, `<dialog>`, form controls) over React state where the plan allows "no library" — they remove an entire class of hydration/touch-timing bugs by construction.
+
 NEXT STEP:
-- Rade visually approves the Phase 2 shell (nav on mobile/desktop, locale switcher, footer) → then Phase 3: Content Layer + Home (`content/types.ts`, `content/en/home.ts` verbatim from the tournament doc, `lib/content.ts`, `components/CaseCard.tsx`, full `app/[locale]/page.tsx`).
+- Rade re-confirms the mobile menu works on the real device that caught this, then visually approves the rest of the Phase 2 shell (desktop nav, locale switcher, footer) → then Phase 3: Content Layer + Home (`content/types.ts`, `content/en/home.ts` verbatim from the tournament doc, `lib/content.ts`, `components/CaseCard.tsx`, full `app/[locale]/page.tsx`).
 
 ### 001 — Phase 1: Repo + Design System — 2026-07-11
 STATUS: DONE

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { locales, type Locale } from "@/lib/i18n";
 
 interface NavProps {
@@ -23,12 +22,38 @@ function withLocale(pathname: string, locale: Locale): string {
   return segments.join("/") || `/${locale}`;
 }
 
+function LocaleSwitcher({
+  locale,
+  pathname,
+  className,
+}: {
+  locale: Locale;
+  pathname: string;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-2 font-mono text-xs ${className ?? ""}`}>
+      {locales.map((target, i) => (
+        <span key={target} className="flex items-center gap-2">
+          {i > 0 && <span className="text-line">/</span>}
+          <Link
+            href={withLocale(pathname, target)}
+            aria-current={locale === target ? "page" : undefined}
+            className={locale === target ? "text-amber" : "text-muted hover:text-text"}
+          >
+            {target.toUpperCase()}
+          </Link>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function Nav({ locale }: NavProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
 
   return (
-    <header className="border-b border-line">
+    <header className="relative border-b border-line">
       <div className="mx-auto flex max-w-(--container-site) items-center justify-between px-6 py-4">
         <Link href={`/${locale}`} className="flex min-w-0 items-baseline gap-2">
           <span className="truncate text-base font-semibold text-text sm:text-lg">
@@ -38,16 +63,6 @@ export default function Nav({ locale }: NavProps) {
             identitet
           </span>
         </Link>
-
-        <button
-          type="button"
-          className="font-mono text-xs text-muted md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((value) => !value)}
-        >
-          {open ? "close" : "menu"}
-        </button>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
           {NAV_LINKS.map((link) => (
@@ -59,67 +74,44 @@ export default function Nav({ locale }: NavProps) {
               {link.label}
             </Link>
           ))}
-          <div className="flex items-center gap-2 font-mono text-xs">
-            {locales.map((target, i) => (
-              <span key={target} className="flex items-center gap-2">
-                {i > 0 && <span className="text-line">/</span>}
-                <Link
-                  href={withLocale(pathname, target)}
-                  aria-current={locale === target ? "page" : undefined}
-                  className={
-                    locale === target
-                      ? "text-amber"
-                      : "text-muted hover:text-text"
-                  }
-                >
-                  {target.toUpperCase()}
-                </Link>
-              </span>
-            ))}
-          </div>
+          <LocaleSwitcher locale={locale} pathname={pathname} />
         </nav>
-      </div>
 
-      {open && (
-        <nav
-          id="mobile-nav"
-          aria-label="Primary"
-          className="border-t border-line md:hidden"
-        >
-          <ul className="flex flex-col gap-1 px-6 py-4">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={`/${locale}${link.href}`}
-                  className="block py-2 text-sm text-muted hover:text-text"
-                  onClick={() => setOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-            <li className="flex items-center gap-2 pt-2 font-mono text-xs">
-              {locales.map((target, i) => (
-                <span key={target} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-line">/</span>}
+        {/* Native <details>/<summary> disclosure: no JS required to open/close,
+            so it can't be broken by a hydration race or a missed touch event
+            on a real device (unlike a React onClick + useState toggle). */}
+        <details className="group md:hidden">
+          <summary
+            aria-controls="mobile-nav"
+            className="cursor-pointer list-none font-mono text-xs text-muted marker:hidden [&::-webkit-details-marker]:hidden"
+          >
+            <span className="group-open:hidden">menu</span>
+            <span className="hidden group-open:inline">close</span>
+          </summary>
+
+          <nav
+            id="mobile-nav"
+            aria-label="Primary"
+            className="absolute inset-x-0 top-full hidden border-t border-line bg-ink group-open:block"
+          >
+            <ul className="flex flex-col gap-1 px-6 py-4">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
                   <Link
-                    href={withLocale(pathname, target)}
-                    aria-current={locale === target ? "page" : undefined}
-                    className={
-                      locale === target
-                        ? "text-amber"
-                        : "text-muted hover:text-text"
-                    }
-                    onClick={() => setOpen(false)}
+                    href={`/${locale}${link.href}`}
+                    className="block py-2 text-sm text-muted hover:text-text"
                   >
-                    {target.toUpperCase()}
+                    {link.label}
                   </Link>
-                </span>
+                </li>
               ))}
-            </li>
-          </ul>
-        </nav>
-      )}
+              <li className="pt-2">
+                <LocaleSwitcher locale={locale} pathname={pathname} />
+              </li>
+            </ul>
+          </nav>
+        </details>
+      </div>
     </header>
   );
 }
