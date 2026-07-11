@@ -46,3 +46,58 @@ export interface HomeContent {
     links: CTALink[];
   };
 }
+
+export interface ServiceDetail {
+  id: string;
+  hook: string;
+  description?: string;
+  bullets: string[];
+  engagementNote?: string;
+  whatYouOwn: string;
+  assessmentCta?: CTALink;
+}
+
+export interface ServicesPageContent {
+  intro: string;
+  services: ServiceDetail[];
+}
+
+export interface AssessmentTimelinePhase {
+  range: string;
+  heading: string;
+  body: string;
+}
+
+export interface AssessmentContent {
+  hero: {
+    headline: string;
+    body: string;
+    price: string;
+    deliveryNote: string;
+    cta: CTALink;
+  };
+  questions: {
+    heading: string;
+    body: string;
+  }[];
+  timeline: {
+    statusStrip: StatusStripItem[];
+    phases: AssessmentTimelinePhase[];
+  };
+  documentIsYours: {
+    body: string;
+  };
+  whyFixedPrice: {
+    body: string;
+    worstCase: string;
+    highlight: string;
+  };
+  whoThisIsFor: {
+    body: string;
+  };
+  cta: {
+    heading: string;
+    body: string;
+    links: CTALink[];
+  };
+}

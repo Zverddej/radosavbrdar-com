@@ -30,6 +30,39 @@ NEXT STEP:
 
 -->
 
+### 004 — Phase 4: Services + AI Assessment — 2026-07-12
+STATUS: DONE
+COMMITS: pending
+MODEL: Sonnet 5 / Claude Code
+
+DONE:
+- `content/types.ts` — added `ServiceDetail`, `ServicesPageContent`, `AssessmentTimelinePhase`, `AssessmentContent`.
+- `content/en/services.ts` — verbatim from `website-copy-tournament.md` PART 5 → SERVICES: intro line + three services (`private-ai`, `web`, `brand`), each with hook/bullets/what-you-own; Private AI additionally carries the engagement note and an `assessmentCta` (see DEVIATIONS).
+- `content/en/assessment.ts` — verbatim from `ai-assessment-tournament.md` PART 4: hero, 3 questions, 14-day timeline (StatusStrip data + full phase copy), "the document is yours", "why fixed price" (incl. the worst-case line + pull-quote), "who this is for", closing CTA.
+- `lib/content.ts` — extended `ContentMap`/`getContent` to also serve `services` and `assessment` (en only; sr still falls back).
+- `app/[locale]/services/page.tsx` — one page, three `<section id="private-ai|web|brand">` anchored sections per the plan.
+- `app/[locale]/ai-assessment/page.tsx` — hero (headline, body, price line, CTA) → three numbered questions → 14-day timeline (`StatusStrip` rendering `day 01–03 · data audit` etc., exactly as the plan specifies, plus the full phase copy below it) → document-is-yours → why-fixed-price → who-this-is-for → CTA.
+
+ACCEPTANCE CHECK:
+- [x] Both pages render full copy; anchors work — verified via Puppeteer screenshots (1440px settled, 375px) plus a direct anchor-scroll test (`/en/services#web` lands the section ~27px from viewport top, correct; `#brand` — the last section — clamps at the document's max scroll position since there isn't enough trailing content to push it further, which is correct native browser behavior, not a bug).
+- [x] Assessment page linked from Services and Nav — Services' Private AI section renders an "AI Assessment →" link to `/ai-assessment` (the linked text is the exact quoted term "AI Assessment" already used in the engagement-note copy, not invented marketing copy); Nav's existing "AI Assessment" link (Phase 2, previously 404ing) now resolves 200.
+- [x] Placeholder price clearly marked with a TODO comment in content file — `content/en/assessment.ts` has a header comment explaining the price is Rade's already-confirmed launch-kit number (not invented) and flagging the still-open on-site/founding-rate phrasing question.
+- [x] Build passes; responsive check — zero TS errors, all four new routes (`/en` + `/sr` × `/services`, `/ai-assessment`) prerendered static (200 via curl on a scratch port); `scrollWidth === clientWidth === 375` on both pages at mobile.
+
+DEVIATIONS FROM PLAN:
+- Plan says the assessment price "stays as visible placeholder `[X] €`", but DEV-LOG 000 already recorded Rade's launch-kit decision (€3.000 remote / €4.500 on-site) and explicitly said content files may use it. Used "3.000 €" (matching the tournament template's own `[X] €` number-then-symbol order) in both spots the placeholder appeared (hero price line, "Worst case" sentence). Did not surface the €4.500 on-site delta or the €2.000 founding-client rate (the latter is explicitly a private offer, not page copy) — flagged as an open TODO for Rade to decide the on-site phrasing.
+- "Private AI section links prominently to `/ai-assessment`" (plan's Approach step) isn't itself copy from the tournament doc — implemented as a distinct link using the exact already-verbatim quoted term "AI Assessment" from the engagement note, rather than inventing new CTA button text.
+- The 14-day timeline is plan-specified to use `StatusStrip` (`day 01–03 · data audit`); its three `value`s ("data audit", "proof of concept", "the plan") are the same words as the phase headings in the source copy, only lowercased/depunctuated to match the mono status-line convention (same treatment as Phase 3's credibility-strip labels) — the full-sentence phase copy renders unchanged directly below it.
+- `ServiceDetail.description` made optional: the tournament copy's "Web Platforms & Products" entry has no descriptive sentence between its hook and bullet list (only Private AI and Brand to Product do) — left absent rather than inventing filler text.
+
+OPEN TODOs INTRODUCED:
+- `content/en/assessment.ts` — on-site price (€4.500) / founding-rate phrasing on the page, pending Rade (see DEVIATIONS).
+- `content/en/assessment.ts` — "Book the assessment" and CTA-block "Book the call" / "Email" hrefs are `"#"`, same open booking-tool/contact-email items as Phase 3's Home CTAs.
+- Carried from `ai-assessment-tournament.md`'s own "Open items before this page ships" list (not yet actioned, no DEV-LOG resolution exists for these unlike price): NDA microcopy near the day-8 PoC promise, and a stated capacity upper bound (document types / sample size). Left the copy as given rather than inventing either.
+
+NEXT STEP:
+- Rade reviews Services + AI Assessment (price phrasing, the "AI Assessment" link treatment) → then Phase 5: Work System + Case Studies (`/work` index + `/work/[slug]` MDX pages, wiring the same case data already used as Home's proof-strip stubs).
+
 ### 003 — Phase 3: Content Layer + Home — 2026-07-11
 STATUS: DONE
 COMMITS: 7d3305d (code + this entry), follow-up hash-record commit

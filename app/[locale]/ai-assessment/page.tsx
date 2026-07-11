@@ -1,0 +1,103 @@
+import Link from "next/link";
+import StatusStrip from "@/components/StatusStrip";
+import { getContent } from "@/lib/content";
+import type { Locale } from "@/lib/i18n";
+import type { CTALink } from "@/content/types";
+
+// "#" is a TODO placeholder (see content/en/assessment.ts) -- never locale-prefix it.
+function href(locale: Locale, link: CTALink): string {
+  return link.href === "#" ? link.href : `/${locale}${link.href}`;
+}
+
+export default async function AiAssessmentPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const content = getContent(locale, "assessment");
+
+  return (
+    <div className="mx-auto max-w-(--container-site) px-6">
+      {/* Hero */}
+      <section className="py-(--spacing-section)">
+        <h1 className="max-w-3xl text-3xl font-semibold text-text sm:text-4xl">
+          {content.hero.headline}
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg text-muted">{content.hero.body}</p>
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <Link
+            href={href(locale, content.hero.cta)}
+            className="border border-amber bg-amber px-5 py-3 text-sm font-medium text-ink"
+          >
+            {content.hero.cta.label}
+          </Link>
+          <p className="font-mono text-sm text-muted">
+            Fixed price: {content.hero.price} · {content.hero.deliveryNote}
+          </p>
+        </div>
+      </section>
+
+      {/* Section 1 -- three questions */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <div className="grid gap-10 md:grid-cols-3 md:gap-8">
+          {content.questions.map((question, i) => (
+            <div key={question.heading}>
+              <h2 className="text-lg font-semibold text-text">
+                <span className="mr-2 font-mono text-sm text-amber">{i + 1}.</span>
+                {question.heading}
+              </h2>
+              <p className="mt-3 text-sm text-muted">{question.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 2 -- the 14 days */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <StatusStrip items={content.timeline.statusStrip} />
+        <div className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+          {content.timeline.phases.map((phase) => (
+            <div key={phase.range}>
+              <p className="font-mono text-xs text-muted">{phase.range}</p>
+              <h3 className="mt-1 text-lg font-semibold text-text">{phase.heading}</h3>
+              <p className="mt-3 text-sm text-muted">{phase.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 3 -- the document is yours */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <p className="max-w-2xl text-muted">{content.documentIsYours.body}</p>
+      </section>
+
+      {/* Section 4 -- why fixed price */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <p className="max-w-2xl text-muted">{content.whyFixedPrice.body}</p>
+        <p className="mt-4 max-w-2xl text-muted">{content.whyFixedPrice.worstCase}</p>
+        <p className="mt-4 max-w-2xl text-lg font-semibold text-text">
+          {content.whyFixedPrice.highlight}
+        </p>
+      </section>
+
+      {/* Section 5 -- who this is for */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <p className="max-w-2xl text-muted">{content.whoThisIsFor.body}</p>
+      </section>
+
+      {/* CTA */}
+      <section className="border-t border-line py-(--spacing-section)">
+        <h2 className="max-w-2xl text-2xl font-semibold text-text">{content.cta.heading}</h2>
+        <p className="mt-4 max-w-2xl text-muted">{content.cta.body}</p>
+        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
+          {content.cta.links.map((link) => (
+            <Link key={link.label} href={href(locale, link)} className="text-text hover:text-amber">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
