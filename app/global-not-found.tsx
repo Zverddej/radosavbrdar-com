@@ -11,9 +11,8 @@ import "./globals.css";
 // Global 404 (exported as out/404.html, served by Workers static assets via
 // not_found_handling: "404-page"). global-not-found bypasses all layouts, so
 // it declares its own html/fonts -- same config as app/[locale]/layout.tsx.
-// The URL carries no locale, so chrome defaults to EN with a bilingual body
-// line; the microcopy here is chrome-level (no 404 copy exists in the copy
-// docs), flagged in DEV-LOG 008.
+// The URL carries no locale, so chrome defaults to EN with both language
+// blocks shown. Copy is verbatim, of record per Rade (DEV-LOG 009).
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -49,15 +48,27 @@ export default function GlobalNotFound() {
                 items={[{ label: "status", value: "404 · page not found" }]}
               />
               <h1 className="mt-10 max-w-2xl text-3xl font-semibold text-text sm:text-4xl">
-                Page not found.
+                Someone probably sent you here — but not quite here. The page
+                doesn&apos;t exist; the work does.
               </h1>
-              <p className="mt-4 max-w-2xl text-muted">Stranica ne postoji.</p>
-              <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
                 <Link href="/en" className="text-text hover:text-amber">
                   Home
                 </Link>
+                <Link href="/en/work" className="text-text hover:text-amber">
+                  Work
+                </Link>
+              </div>
+              <p className="mt-10 max-w-2xl text-lg text-muted">
+                Neko Vas je verovatno uputio ovde — ali ne baš ovde. Stranica
+                ne postoji; radovi postoje.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
                 <Link href="/sr" className="text-text hover:text-amber">
                   Početna
+                </Link>
+                <Link href="/sr/work" className="text-text hover:text-amber">
+                  Radovi
                 </Link>
               </div>
             </section>

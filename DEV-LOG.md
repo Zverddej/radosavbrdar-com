@@ -30,6 +30,35 @@ NEXT STEP:
 
 -->
 
+### 009 — Chore: 404 copy of record — 2026-07-12
+STATUS: DONE
+COMMITS: pending
+MODEL: Claude Code (Sonnet 5)
+
+DONE:
+- `app/global-not-found.tsx` — replaced the invented placeholder 404 microcopy (flagged in DEV-LOG 008) with Rade's copy of record, verbatim. EN block: heading "Someone probably sent you here — but not quite here. The page doesn't exist; the work does." with links Home (`/en`) and Work (`/en/work`). SR block: paragraph "Neko Vas je verovatno uputio ovde — ali ne baš ovde. Stranica ne postoji; radovi postoje." with links Početna (`/sr`) and Radovi (`/sr/work`). StatusStrip (`404 · page not found`) and Nav/Footer chrome untouched.
+
+ACCEPTANCE CHECK:
+- [x] Unknown path returns HTTP 404 with the new copy — verified against the real Workers assets runtime (`wrangler dev` on `out/`): `GET /bogus-path` → 404, both EN and SR blocks present in the response body.
+- [x] Links resolve — `/en`, `/en/work`, `/sr`, `/sr/work` all present as `href`s in the rendered page.
+- [x] Build clean — `npm run build`: zero TS errors, all 29 routes generated.
+- [x] No overflow at 375px — measured via Chrome DevTools Protocol (`Emulation.setDeviceMetricsOverride` width 375, `document.documentElement.scrollWidth` vs `window.innerWidth`, plus a full-tree `getBoundingClientRect()` sweep) against the served 404 page: `scrollWidth === innerWidth`, zero elements with `rect.right > viewport`. Screenshot-based spot checks (which look plausible but are not authoritative — screenshots can visually clip content without that being real DOM overflow) agreed.
+- [x] `npm run lint` — no new findings from this file; only the pre-existing Phase 1 StatusStrip finding.
+
+DEVIATIONS FROM PLAN:
+- None.
+
+OPEN TODOs INTRODUCED:
+- None.
+
+INCIDENTAL FINDING (out of scope, not fixed here):
+- While measuring 375px overflow, the same CDP sweep run against the **homepage** (`/en`, untouched by this chore) found real overflow: two `.status-segment` spans inside the homepage's `StatusStrip` ("2 production private-AI deployments", "400+ companies on an invoicing platform I built and maintain") extend ~300–450px past a 375px viewport. Root cause: `.status-segment` (globals.css, the type-in reveal effect) is `white-space: nowrap` by design, so long proof-point strings never wrap on narrow screens — this is a companion issue to the Phase 1 StatusStrip finding already flagged in DEV-LOG 008/lint, not something introduced today. The 404 page's own StatusStrip value (`404 · page not found`) is short enough that it doesn't trigger this. Flagging for Rade to decide whether/when to address (e.g. cap segment length, or allow wrapping below a breakpoint) — not started, not part of this commit.
+
+NEXT STEP:
+- None for this chore. If Rade wants the StatusStrip nowrap-overflow finding above addressed, that's a new small task, separate from any phase.
+
+---
+
 ### 008 — Phase 8: Deploy + Analytics — 2026-07-12
 STATUS: DONE (repo side; the three dashboard steps that need Rade's Cloudflare account are listed under NEXT STEP and are the only thing between this commit and a live site)
 COMMITS: 50a8009 (code + this entry), follow-up hash-record commit
