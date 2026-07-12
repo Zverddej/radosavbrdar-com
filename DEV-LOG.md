@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 005 — Phase 5: Work System + Case Studies — 2026-07-12
 STATUS: DONE
-COMMITS: pending
+COMMITS: f94d2b4 (code + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 RESOLVED DECISIONS FROM RADE (applied before starting this phase):
