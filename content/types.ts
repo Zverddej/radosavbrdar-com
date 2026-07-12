@@ -11,12 +11,22 @@ export interface ServiceContent {
   whatYouOwn: string;
 }
 
-export interface CaseStub {
-  slug: string;
+export interface CaseMetric {
+  value: string;
+  label: string;
+}
+
+export interface CaseFrontmatter {
   title: string;
+  slug: string;
+  sector: string;
+  year: number;
   problem: string;
   stack: string[];
   outcome: string;
+  metric?: CaseMetric;
+  featured: boolean;
+  order: number;
 }
 
 export interface HomeContent {
@@ -36,7 +46,9 @@ export interface HomeContent {
     body: string;
   };
   proof: {
-    cases: CaseStub[];
+    // Case data itself comes from lib/work.ts (getFeaturedCases()), not
+    // content -- Phase 5 wires the real cases in, replacing Phase 3's
+    // hardcoded stubs.
     allWorkCta: CTALink;
   };
   credibility: StatusStripItem[];
@@ -72,8 +84,7 @@ export interface AssessmentContent {
   hero: {
     headline: string;
     body: string;
-    price: string;
-    deliveryNote: string;
+    priceLine: string;
     cta: CTALink;
   };
   questions: {

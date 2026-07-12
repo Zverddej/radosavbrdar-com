@@ -1,0 +1,41 @@
+import StatusStrip from "@/components/StatusStrip";
+
+export const frontmatter = {
+  title: "Private RAG for a Historical Research Archive",
+  slug: "archive-rag",
+  sector: "Historical research / Archives",
+  year: 2026,
+  problem:
+    "A 10,000+ page WWII archive, unsearchable: scanned microfilm, mixed German and English, no digital index.",
+  stack: [
+    "fastapi",
+    "qdrant",
+    "bge-m3",
+    "hybrid-search",
+    "self-hosted-llm",
+    "ocr-pipeline",
+  ],
+  outcome:
+    "Full-text semantic search over the entire corpus, running on private infrastructure.",
+  metric: { value: "10,649", label: "pages indexed" },
+  featured: true,
+  order: 1,
+};
+
+{/* TODO: a typical query latency number (corpus size is now resolved -- 10,649 pages, per Rade). */}
+
+## Context
+
+A historical research project needed to work with 10,000+ pages of WWII-era archival material — German military records and RAF operational logs — available only as scanned microfilm reels. No OCR, no index, no way to ask "where is X mentioned?" without weeks of manual reading. The material is research-sensitive: sending it to a cloud AI service was not an option.
+
+## Solution
+
+An end-to-end private pipeline. OCR tuned for degraded historical typescript in two languages, with structured Markdown output. Semantic + keyword hybrid search over the full corpus, with optional LLM re-ranking for difficult queries. A multi-tenant visibility model — shared and private document collections with server-side access filtering as the single security chokepoint — so multiple researchers work on one system without seeing each other's private material. A purpose-built frontend: reel browser, page-level navigation, lazy-loaded thumbnails. Everything runs on dedicated infrastructure; no document ever leaves it.
+
+## Stack
+
+<StatusStrip items={[{ label: "stack", value: frontmatter.stack.join(" · ") }]} />
+
+## Outcome
+
+A previously unsearchable archive answers questions in seconds. Researchers query in natural language across German and English sources simultaneously. The system is the reference deployment behind the AI Assessment offer — the same architecture, adapted per client.

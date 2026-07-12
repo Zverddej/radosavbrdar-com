@@ -1,19 +1,25 @@
-import type { CaseStub } from "@/content/types";
+import Link from "next/link";
+import type { CaseFrontmatter } from "@/content/types";
+import type { Locale } from "@/lib/i18n";
 
 interface CaseCardProps {
-  caseStub: CaseStub;
+  caseData: CaseFrontmatter;
+  locale: Locale;
   className?: string;
 }
 
-export default function CaseCard({ caseStub, className }: CaseCardProps) {
+export default function CaseCard({ caseData, locale, className }: CaseCardProps) {
   return (
-    <article className={`border border-line p-6 ${className ?? ""}`}>
-      <h3 className="text-lg font-semibold text-text">{caseStub.title}</h3>
-      <p className="mt-2 text-sm text-muted">{caseStub.problem}</p>
+    <Link
+      href={`/${locale}/work/${caseData.slug}`}
+      className={`block border border-line p-6 hover:border-amber ${className ?? ""}`}
+    >
+      <h3 className="text-lg font-semibold text-text">{caseData.title}</h3>
+      <p className="mt-2 text-sm text-muted">{caseData.problem}</p>
       <p className="mt-4 font-mono text-xs text-muted">
-        stack: {caseStub.stack.join(" · ")}
+        stack: {caseData.stack.join(" · ")}
       </p>
-      <p className="mt-2 text-sm text-text">{caseStub.outcome}</p>
-    </article>
+      <p className="mt-2 text-sm text-text">{caseData.outcome}</p>
+    </Link>
   );
 }

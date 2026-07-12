@@ -1,0 +1,35 @@
+import StatusStrip from "@/components/StatusStrip";
+
+export const frontmatter = {
+  title: "Product Presentation Platform for agrobudget",
+  slug: "agritech-platform",
+  sector: "AgriTech / SaaS",
+  year: 2025,
+  problem:
+    "A capable farm-management SaaS that looked generic online — the product's depth was invisible to prospects.",
+  stack: ["wordpress", "interactive-widgets", "motion-design", "video"],
+  outcome:
+    "A redesigned web presence with an interactive product hub that shows the platform instead of describing it.",
+  // TODO: metric -- traffic or demo-request delta (open, per Rade).
+  metric: { value: "TODO", label: "TODO — traffic or demo-request delta" },
+  featured: false,
+  order: 5,
+};
+
+{/* Naming permission granted (agrobudget) -- named throughout below. */}
+
+## Context
+
+agrobudget, an agritech SaaS for farm budgeting and management, had a real product and a website that undersold it — static text where an interactive product deserved demonstration, and a WordPress installation with accumulated technical debt, including a hidden malware backdoor discovered during the work.
+
+## Solution
+
+Hero section redesign around an interactive hub-and-spoke widget presenting the platform's modules as an explorable system rather than a feature list. Product video production using AI generation pipelines, directed with proper motion-design briefs. WordPress remediation: the malware backdoor found and removed, performance fixes, implementation in agrobudget's existing builder stack so their team could maintain it.
+
+## Stack
+
+<StatusStrip items={[{ label: "stack", value: frontmatter.stack.join(" · ") }]} />
+
+## Outcome
+
+The product's actual depth became visible at first scroll — and agrobudget kept a platform their own team can run.

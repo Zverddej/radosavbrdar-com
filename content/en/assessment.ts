@@ -3,22 +3,18 @@ import type { AssessmentContent } from "@/content/types";
 // Verbatim from ai-assessment-tournament.md PART 4 -> FINAL PAGE: /ai-assessment.
 //
 // Price: the tournament doc's own placeholder is "[X] €" (see "Open items
-// before this page ships", item 1). DEV-LOG 000 records that Rade already
-// resolved this via the launch-kit: AI Assessment is 3.000 EUR remote /
-// 4.500 EUR on-site, so "3.000 €" below is Rade's decision, not an invented
-// number -- see DEV-LOG 000's own instruction: "content files may use
-// €3.000 as the price... if uncertain how to phrase on the page, leave
-// €3.000 and flag phrasing for Rade." The on-site delta (4.500 €) and the
-// founding-client rate (2.000 €, explicitly a private offer, not public
-// copy) are not shown on the page -- TODO: confirm whether/how to surface
-// the on-site price next to "Remote or on-site (EU)".
+// before this page ships", item 1). DEV-LOG 000 recorded Rade's launch-kit
+// decision (3.000 EUR remote / 4.500 EUR on-site); DEV-LOG 005 records the
+// exact on-site phrasing Rade resolved this TODO with. The founding-client
+// rate (2.000 EUR) stays off this page -- it's an explicitly private offer,
+// not public copy.
 export const assessment: AssessmentContent = {
   hero: {
     headline:
       "In 14 days, you'll know exactly what AI can do for your firm — before you spend real money on it.",
     body: "A fixed-price engineering assessment. By day 8 you'll see a working search over a sample of your own documents. By day 14 you'll hold a deployment plan you own — whether we build it together or not.",
-    price: "3.000 €",
-    deliveryNote: "Remote or on-site (EU)",
+    priceLine:
+      "Fixed price: 3.000 € (remote) · 4.500 € with on-site days (EU, travel included)",
     cta: { label: "Book the assessment", href: "#" },
   },
   questions: [

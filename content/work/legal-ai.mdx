@@ -1,0 +1,34 @@
+import StatusStrip from "@/components/StatusStrip";
+
+export const frontmatter = {
+  title: "Legal AI Assistant for Municipal Administration",
+  slug: "legal-ai",
+  sector: "Public administration / Legal",
+  year: 2025,
+  problem:
+    "Municipal legal teams answering the same regulatory questions repeatedly, across four jurisdictions' legislation.",
+  stack: ["rag", "faiss", "regional-llm", "python"],
+  outcome:
+    "A legal question-answering system over regional legislation, developed with an EU-based partner.",
+  metric: { value: "4", label: "jurisdictions covered (SR/HR/SI/BA)" },
+  featured: true,
+  order: 4,
+};
+
+{/* TODO: confirm what can be said about pilot municipalities; keep sector-level if no permission (open, per Rade). */}
+
+## Context
+
+Municipal administrations across the region face the same structural problem: legal teams spend a large share of their time answering recurring questions about legislation and procedure — in Serbian, Croatian, Slovenian, and Bosnian legal frameworks that are similar but never identical. Confidentiality and data locality are non-negotiable in public administration.
+
+## Solution
+
+A retrieval-augmented legal assistant over regional legislation, built in partnership with a Slovenian company for EU-side delivery. Legislation corpus per jurisdiction, semantic retrieval tuned for legal language, and answers grounded in the retrieved articles rather than model memory — with citations back to the source text. Commercial model designed around public-sector constraints: multiple hosting configurations from fully on-premise to EU-hosted private servers.
+
+## Stack
+
+<StatusStrip items={[{ label: "stack", value: frontmatter.stack.join(" · ") }]} />
+
+## Outcome
+
+The second reference deployment behind the Private AI service line — and the origin of the EU partnership through which sovereign AI deployments are delivered inside the Union.

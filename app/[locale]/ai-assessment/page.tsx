@@ -32,9 +32,7 @@ export default async function AiAssessmentPage({
           >
             {content.hero.cta.label}
           </Link>
-          <p className="font-mono text-sm text-muted">
-            Fixed price: {content.hero.price} · {content.hero.deliveryNote}
-          </p>
+          <p className="font-mono text-sm text-muted">{content.hero.priceLine}</p>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import StatusStrip from "@/components/StatusStrip";
 import CaseCard from "@/components/CaseCard";
 import { getContent } from "@/lib/content";
+import { getFeaturedCases } from "@/lib/work";
 import type { Locale } from "@/lib/i18n";
 import type { CTALink } from "@/content/types";
 
@@ -17,6 +18,7 @@ export default async function Home({
 }) {
   const { locale } = await params;
   const content = getContent(locale, "home");
+  const featuredCases = getFeaturedCases();
 
   return (
     <div className="mx-auto max-w-(--container-site) px-6">
@@ -76,8 +78,8 @@ export default async function Home({
       {/* 5. Proof strip */}
       <section className="border-t border-line py-(--spacing-section)">
         <div className="grid gap-6 sm:grid-cols-2">
-          {content.proof.cases.map((caseStub) => (
-            <CaseCard key={caseStub.slug} caseStub={caseStub} />
+          {featuredCases.map((caseData) => (
+            <CaseCard key={caseData.slug} caseData={caseData} locale={locale} />
           ))}
         </div>
         <Link

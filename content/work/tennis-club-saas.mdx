@@ -1,0 +1,32 @@
+import StatusStrip from "@/components/StatusStrip";
+
+export const frontmatter = {
+  title: "Booking & Membership Platform for a Tennis Club",
+  slug: "tennis-club-saas",
+  sector: "Sports club management",
+  year: 2026,
+  problem:
+    "Court booking by phone calls and paper lists — double bookings, no membership rule enforcement, no visibility.",
+  stack: ["nextjs", "prisma", "postgresql", "telegram-bot", "pwa"],
+  outcome:
+    "Self-service booking with automatic rule enforcement, running as a PWA members use daily.",
+  metric: { value: "121", label: "active members" },
+  featured: true,
+  order: 2,
+};
+
+## Context
+
+A tennis club with decades of tradition ran its daily operations on phone calls and paper. Court reservations collided, membership rules (who can book what, when, how far ahead) existed only in people's heads, and the club administration spent hours weekly untangling conflicts.
+
+## Solution
+
+A multi-tenant club management platform built around the club's real rules, not a generic booking template. Membership tiers with enforced booking permissions, court-specific rules, prime-time limits per member, waitlists with automatic promotion when a slot frees up, guest accounts, and admin booking on behalf of members. Telegram notifications for confirmations and waitlist promotions. Tournament archive, leaderboard and head-to-head statistics for the competitive side of club life. Installable as a PWA — no app store, works on every phone.
+
+## Stack
+
+<StatusStrip items={[{ label: "stack", value: frontmatter.stack.join(" · ") }]} />
+
+## Outcome
+
+Booking conflicts eliminated; rules enforce themselves. The administration's weekly scheduling overhead dropped to near zero, and members book courts at midnight without calling anyone. 150+ reservations per week in season, self-service.

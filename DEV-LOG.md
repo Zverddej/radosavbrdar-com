@@ -30,6 +30,50 @@ NEXT STEP:
 
 -->
 
+### 005 — Phase 5: Work System + Case Studies — 2026-07-12
+STATUS: DONE
+COMMITS: pending
+MODEL: Sonnet 5 / Claude Code
+
+RESOLVED DECISIONS FROM RADE (applied before starting this phase):
+- `archive-rag.mdx`: corpus is 10,649 pages (1 page = 1 vector). `problem` updated "100k+" → "10,000+"; `metric: { value: "10,649", label: "pages indexed" }`. The Context paragraph's "tens of thousands of pages" phrase was also corrected to "10,000+ pages" for the same reason (not explicitly named by Rade, but the identical fact restated less precisely two sentences later — see DEVIATIONS). Query-latency TODO remains open.
+- `tennis-club-saas.mdx`: `metric: { value: "121", label: "active members" }`. Outcome text now ends "...150+ reservations per week in season, self-service." (Rade's source: June 2026 report, 738 reservations / ~170 per week average; 150+ is the conservative public claim — the raw report numbers are **not** published on the page, only the public claim, same treatment as the founding-client rate in Phase 4.) Both TODOs in this file now resolved, none remain.
+- `agritech-platform.mdx`: naming permission granted. Title, Context, Solution, and Outcome now name "agrobudget" directly (previously anonymized as "an agritech SaaS"/"the client"). Metric TODO remains open (traffic/demo-request delta).
+- `legal-ai.mdx`: no change — municipality naming stays sector-level per the content doc; TODO remains open.
+- `cosmetics-brand.mdx`: no change — metric TODO remains open (Skinissima naming was already resolved in DEV-LOG 000, before Phase 3).
+- `content/en/assessment.ts`: hero price line resolved to exactly "Fixed price: 3.000 € (remote) · 4.500 € with on-site days (EU, travel included)" — closes the on-site-phrasing TODO opened in Phase 4 (DEV-LOG 004).
+
+DONE:
+- Installed `@next/mdx`, `@mdx-js/loader`, `@mdx-js/react`, `@types/mdx`; configured `next.config.ts` with `createMDX({})` — no remark/rehype plugins, since case studies use a plain `export const frontmatter = {...}` object (Next's own documented pattern) instead of YAML frontmatter, avoiding Turbopack's restriction on non-serializable remark plugin options (see DEVIATIONS). Added the App-Router-required `mdx-components.tsx` at the root, mapping `h2`/`p` to Blueprint Terminal typography so case-study prose is styled without per-file markup.
+- `content/work/*.mdx` — 5 case studies (`archive-rag`, `tennis-club-saas`, `cosmetics-brand`, `legal-ai`, `agritech-platform`), each: `export const frontmatter` (title/slug/sector/year/problem/stack/outcome/metric/featured/order, matching the plan's typed shape) + `## Context` / `## Solution` / `## Stack` (a single-item `StatusStrip` driven by `frontmatter.stack`, so the mono tech list is never duplicated) / `## Outcome`, verbatim from `content-of-record-completion.md` PART 1 with Rade's resolutions applied.
+- `content/work/mdx.d.ts` — augments `declare module "*.mdx"` with the `frontmatter: CaseFrontmatter` named export (`@types/mdx` only types the default export by design; this is its own documented extension point).
+- `lib/work.ts` — `getAllCases()` / `getFeaturedCases()` / `getCaseBySlug(slug)`, explicit static-import map (no filesystem globbing), sorted by `order`.
+- `content/types.ts` — added `CaseMetric`, `CaseFrontmatter` (replacing Phase 3's `CaseStub`); `HomeContent.proof` no longer carries `cases` (sourced from `lib/work.ts` now); `AssessmentContent.hero` collapsed `price`+`deliveryNote` into one `priceLine` field to hold Rade's exact resolved sentence.
+- `components/CaseCard.tsx` — now takes `caseData: CaseFrontmatter` + `locale`, and is a real `Link` to `/work/[slug]` (previously a static, unlinked card — there was nothing to link to before this phase).
+- `app/[locale]/work/page.tsx` — intro line (verbatim, "Five projects, curated...") + grid of all 5 `CaseCard`s.
+- `app/[locale]/work/[slug]/page.tsx` — header (sector · year, title, metric — hidden when a metric's `value` is literally `"TODO"`, so unresolved metrics never render to visitors) + the compiled MDX body. `generateStaticParams` from `getAllCases()`, `dynamicParams = false` (unknown slugs hard-404).
+- `app/[locale]/page.tsx` (Home) — proof strip now renders `getFeaturedCases()` via `CaseCard`, replacing Phase 3's hardcoded stub array.
+- `content/en/assessment.ts`, `app/[locale]/ai-assessment/page.tsx` — price line resolved per Rade (see above); page now renders `content.hero.priceLine` directly.
+
+ACCEPTANCE CHECK:
+- [x] `/en/work` lists 5 cases; each slug page renders; Home shows 4 featured — verified via curl (200 on all 5 case pages + index, both locales) and a Puppeteer screenshot of `/en/work` (all 5 titles, including "...for agrobudget"); grepped `/en`'s rendered HTML for case `<h3>`s — exactly the 4 `featured: true` titles, `agritech-platform` correctly absent.
+- [x] Every case has all frontmatter fields; missing metrics marked TODO — all 5 files carry the full `CaseFrontmatter` shape; `cosmetics-brand` and `agritech-platform` keep `metric.value: "TODO"` in the content file (satisfies the acceptance check) while the page template hides that field from the rendered page rather than showing visitors the literal word "TODO" — confirmed via curl grep, no "TODO" string reaches either page's HTML.
+- [x] Build passes with static generation for all slugs — zero TS errors; build output shows `/[locale]/work/[slug]` prerendered for all 5 slugs × 2 locales (confirmed the 10 `.html` files directly in `.next/server/app/`); `/en/work/nonexistent-slug` → 404 (via `dynamicParams = false`).
+- [x] (carried standard) No overflow at 375px on `/work`, a case page, and Home; `npm run lint` shows only the pre-existing Phase 1 `StatusStrip.tsx` finding, nothing new.
+
+DEVIATIONS FROM PLAN:
+- Plan says "typed frontmatter" in `.mdx` files; implemented as a plain `export const frontmatter = {...}` JS object rather than YAML frontmatter + `remark-frontmatter`/`remark-mdx-frontmatter`. This is Next's own documented recommendation for `@next/mdx` (which doesn't support YAML frontmatter itself) and — per the Next docs bundled in `node_modules` — YAML-frontmatter remark plugins hit a real restriction under Turbopack ("remark and rehype plugins without serializable options cannot be used yet with Turbopack, because JavaScript functions can't be passed to Rust"), which this project uses by default. The object is still fully typed (`content/work/mdx.d.ts`) and satisfies every field the plan lists.
+- "Stack (StatusStrip)" is implemented as a `## Stack` heading inside each `.mdx` body containing `<StatusStrip items={[{ label: "stack", value: frontmatter.stack.join(" · ") }]} />`, rather than the page template splitting the compiled MDX output to inject a component between Solution and Outcome (not possible — a compiled MDX file is one atomic component). This keeps `Context → Solution → Stack → Outcome` in the plan's exact order and the stack list has one source of truth (`frontmatter.stack`), at the cost of each `.mdx` file needing one `import` + one JSX line rather than being pure prose.
+- `archive-rag.mdx`'s Context paragraph ("tens of thousands of pages") was corrected to "10,000+ pages" alongside the explicitly-named frontmatter `problem` field — Rade named only the frontmatter line, but the Context prose restates the identical fact with the same now-corrected imprecision; leaving it would have shipped a page where two sentences about the same corpus disagreed by roughly 2x. Flagging since it's an inference beyond the literal instruction, not a literal quote from Rade.
+- `agritech-platform.mdx`: naming substitutions beyond the frontmatter `title` (Context: "An agritech SaaS for farm budgeting and management" → "agrobudget, an agritech SaaS for farm budgeting and management,"; Solution: "the client's" → "agrobudget's"; Outcome: "the client" → "agrobudget") — the source doc's own anonymization existed only because naming wasn't cleared (its own TODO said so); once granted, applying the name consistently throughout rather than only in the title avoids an inconsistent case study.
+- `CaseCard` now requires a `locale` prop and renders as a `Link` to `/work/[slug]` — it had nothing to link to in Phase 3 (no case pages existed yet); this phase gives it somewhere to go, matching plan intent ("wire Home proof strip to real case data") more literally than a static card would.
+
+OPEN TODOs INTRODUCED:
+- None new. Carried forward, all pre-existing and explicitly left open per Rade: `archive-rag.mdx` query-latency number; `cosmetics-brand.mdx` and `agritech-platform.mdx` metrics; `legal-ai.mdx` municipality-naming permission. All four are `// TODO:`/`{/* TODO: */}` comments in their content files, not rendered to visitors.
+
+NEXT STEP:
+- Rade reviews the 5 case pages (especially the agrobudget naming and the tennis-club reservations claim) → then Phase 6: About, Contact, Privacy (`content/en/about.ts`, `content/en/contact.ts`, `app/[locale]/privacy/page.tsx`).
+
 ### 004 — Phase 4: Services + AI Assessment — 2026-07-12
 STATUS: DONE
 COMMITS: 1832089 (code + this entry), follow-up hash-record commit
