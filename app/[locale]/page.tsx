@@ -1,8 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import StatusStrip from "@/components/StatusStrip";
 import CaseCard from "@/components/CaseCard";
 import { getContent } from "@/lib/content";
 import { getFeaturedCases } from "@/lib/work";
+import { pageMetadata, personJsonLd, studioJsonLd, jsonLdString } from "@/lib/seo";
 import type { Locale } from "@/lib/i18n";
 import type { CTALink } from "@/content/types";
 
@@ -10,6 +12,22 @@ import type { CTALink } from "@/content/types";
 // and "mailto:..." links pass through unchanged.
 function href(locale: Locale, link: CTALink): string {
   return link.href.startsWith("/") ? `/${locale}${link.href}` : link.href;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const content = getContent(locale, "home");
+  return pageMetadata({
+    locale,
+    path: "",
+    title: "Radosav Brdar · identitet studio",
+    absoluteTitle: true,
+    description: `${content.hero.headline} ${content.hero.subline}`,
+  });
 }
 
 export default async function Home({
@@ -21,8 +39,18 @@ export default async function Home({
   const content = getContent(locale, "home");
   const featuredCases = getFeaturedCases();
 
+  // Person + ProfessionalService on Home, per the Phase 7 plan. The studio
+  // description is the page's own sovereignty paragraph, locale-matched.
+  const jsonLd = jsonLdString({
+    "@graph": [personJsonLd(), studioJsonLd(content.sovereignty.body)],
+  });
+
   return (
     <div className="mx-auto max-w-(--container-site) px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       {/* 1. Hero */}
       <section className="py-(--spacing-section)">
         <h1 className="max-w-3xl text-3xl font-semibold text-text sm:text-4xl">

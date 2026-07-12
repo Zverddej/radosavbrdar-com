@@ -1,5 +1,23 @@
+import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
+import { ui } from "@/content/ui";
 import type { Locale } from "@/lib/i18n";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const content = getContent(locale, "privacy");
+  return pageMetadata({
+    locale,
+    path: "/privacy",
+    title: ui[locale].labels.privacy,
+    description: content.intro,
+  });
+}
 
 export default async function PrivacyPage({
   params,

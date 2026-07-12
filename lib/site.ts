@@ -3,3 +3,8 @@
 // Rade -- see DEV-LOG 006.
 export const CONTACT_EMAIL = "hello@radosavbrdar.com";
 export const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}`;
+
+// Canonical domain, confirmed by Rade (DEV-LOG 006, corrected at Phase 7
+// start: only radosavbrdar.com is registered). Used by metadata, JSON-LD,
+// sitemap and robots.
+export const SITE_URL = "https://radosavbrdar.com";

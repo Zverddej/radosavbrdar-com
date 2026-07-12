@@ -30,13 +30,62 @@ NEXT STEP:
 
 -->
 
+### 007 — Phase 7: SEO/GEO + Serbian Locale — 2026-07-12
+STATUS: DONE
+COMMITS: pending
+MODEL: Fable 5 / Claude Code
+
+RESOLVED DECISIONS FROM RADE (given at phase start):
+- **Domain correction:** only `radosavbrdar.com` was registered — no `radebrdar.com`, no 301 redirect. Entry 006's domain note corrected in place per Rade's instruction. Canonical URLs throughout this phase use `https://radosavbrdar.com` (`SITE_URL` in `lib/site.ts`).
+- **Translation rules binding:** content-of-record PART 5 — srpska latinica, persiranje (Vi), locked-translations table byte-exact, stay-English terms stay English, product is „AI Snimak stanja" (never „procena"), „Own What You Build" → „Vaše je ono što napravimo". Verified byte-exact against the doc (including its quote convention: opening U+201E „, closing ASCII ").
+- **JSON-LD facts:** contact email `hello@radosavbrdar.com`; LinkedIn still TODO → `sameAs` omitted entirely rather than invented (verified absent in rendered output).
+
+DONE:
+- `content/sr/{home,services,assessment,about,contact,privacy}.ts` — full SR translation mirroring EN, all locked-table lines exact, same open-TODO comments (LinkedIn, booking tool, legal review, APR) carried over.
+- `lib/content.ts` — sr registered; the en-fallback mechanism REMOVED: `Record<Locale, ContentMap>` (no `Partial`), so a missing SR page is now a compile error. One defensive `?? content.en` remains in `getContent` solely for bogus-locale requests (see the /xx 404 fix below), not as a content fallback — TS makes an incomplete locale impossible.
+- `content/ui.ts` (new) — locale-keyed chrome: nav/footer labels, mobile menu open/close, nav aria-labels. SR: Radovi / Usluge / AI Snimak stanja / O meni / Kontakt / Privatnost; footer imprint line „Sombor, Srbija". These labels double as the page `<title>`s so nav and metadata can't drift.
+- `components/Nav.tsx`, `components/Footer.tsx` — read labels from `content/ui.ts` instead of hardcoded EN.
+- `app/[locale]/layout.tsx` — now the ROOT layout (html/body/fonts moved here from `app/layout.tsx`, which is deleted) so `<html lang>` is per-locale ("en"/"sr") instead of hardcoded "en" — Next's own documented App Router i18n pattern. Also carries `metadataBase` + title template `%s — Radosav Brdar` and `dynamicParams = false` (see below).
+- `lib/seo.ts` (new) — `pageMetadata()` (canonical + en/sr/x-default hreflang alternates + OG/twitter defaults) and the shared JSON-LD builders (`personJsonLd`, `studioJsonLd`, `jsonLdString` with `<`-escaping).
+- `generateMetadata` on all 8 page files — titles from `content/ui.ts` labels (case pages: frontmatter title; Home: absolute title "Radosav Brdar · identitet studio"), descriptions verbatim from content-file sentences, nothing invented.
+- JSON-LD: Home = `Person` + `ProfessionalService` (@graph, studio description = locale's sovereignty paragraph); Assessment = `Service` („AI Snimak stanja" on SR) with the two resolved public offers (3000/4500 EUR, descriptions = the priceLine's own variants); case pages = `CreativeWork` (author→Person, description = frontmatter problem, keywords = stack, `inLanguage: "en"`).
+- `app/sitemap.ts` — 24 URLs (12 routes × 2 locales), each with en/sr `xhtml:link` alternates (48 total); `app/robots.ts` — allow all + sitemap URL. Both static-export-safe.
+- `public/og/og-default.png` — one static 1200×630 blueprint-terminal OG image (ink bg, hairline frame, amber `radosavbrdar.com` mono line, hero headline, footer imprint line — all existing copy), rendered with the project's own built IBM Plex woff2 files via headless Chrome; referenced by every page.
+- `app/[locale]/work/page.tsx` — `INTRO` became `Record<Locale, string>` with the SR translation; work-index metadata from it.
+- Fixed: `/xx` (invalid locale) returned 500 after the root-layout move — a page's `generateMetadata` ran `getContent("xx")` before the layout's `notFound()`, and a root-layout `notFound()` has no parent boundary. Fix: `dynamicParams = false` on the `[locale]` segment (unknown locales 404 at routing level) + the defensive locale guard in `getContent`. `/xx` and `/en/xx` → 404 verified; `/` → 307 `/en` unchanged.
+
+ACCEPTANCE CHECK:
+- [x] All pages have unique title/description; hreflang pairs validate — scripted check over all 24 pages: titles unique within each locale (Home + case pages intentionally share titles ACROSS locales — proper names/EN case titles — each pair correctly hreflang-linked); every page has a non-empty description from content, correct self-canonical, and en/sr/x-default alternates pointing at the right pair. Note: Next serializes the attribute as `hrefLang` — valid HTML (attribute names are case-insensitive), validated case-insensitively.
+- [x] JSON-LD passes structure (validated locally) — every `application/ld+json` block on all 24 pages `JSON.parse`s; shapes verified: Person+ProfessionalService on both Home locales, Service with 2 EUR offers on both assessment locales, CreativeWork with author/dateCreated/keywords on case pages; `sameAs` confirmed absent. (Google's hosted Rich Results test needs a public URL — run post-deploy in Phase 8.)
+- [x] `/sr/*` fully translated, no EN fallbacks remain — `getContent` fallback removed (type-enforced complete locale map); rendered-HTML scan of all 7 /sr pages against 26 distinctive EN markers: zero hits; all locked-table lines verified byte-exact in rendered SR HTML; SR chrome (nav/footer/mobile menu „meni"/„zatvori") verified. CAVEAT: case-study MDX bodies + frontmatter (titles, sector labels, metric labels) remain EN on `/sr/work/*` by design — the plan's Phase 7 file list is `content/sr/*.ts` only and its folder structure marks MDX "(en first)"; flagged as an open decision for Rade, not silently skipped.
+- [x] Build passes — zero TS errors, 29 static outputs (24 pages + sitemap + robots + favicon + _not-found + /); `npm run lint` still shows only the pre-existing Phase 1 StatusStrip finding.
+- [x] (carried standards) No horizontal overflow on any /sr page at 375/768/1024px; SR mobile menu touch-tested (iPhone profile + touchscreen.tap: opens, all 7 SR links visible, closes) per the Phase 2 process note; desktop nav fits at 768px despite the longer „AI Snimak stanja" label (~100px clearance measured).
+
+DEVIATIONS FROM PLAN:
+- `app/layout.tsx` deleted; root layout now lives at `app/[locale]/layout.tsx` — the plan's folder diagram keeps a root `app/layout.tsx`, but a hardcoded `<html lang="en">` on /sr pages would be wrong for exactly the SEO/locale correctness this phase exists for, and Next's i18n docs use this pattern. Verified `/_not-found` still builds and 404s render.
+- New files not in the plan's list: `content/ui.ts` (chrome labels had been hardcoded EN in Nav/Footer since Phase 2 — they need a locale home; also feeds page titles) and `lib/seo.ts` (8 pages share the canonical/hreflang/OG assembly — one implementation instead of eight copies). Both minimal, no scope creep.
+- Nav/page-title labels („Radovi", „O meni", page titles like "Work") are new SR/EN strings not in any copy doc — structural chrome, same category as Phase 3's StatusStrip labels. Flagged for Rade's review, as are the translated credibility-strip labels (`iskustvo`/`doseg`/`deployments`/`platforma`).
+- Sovereignty heading: EN page copy says "should never leave"; the locked table locks the plain "Your data never leaves your building." → „Vaši podaci nikada ne napuštaju vašu zgradu." Rendered SR adds the modal to match the page copy: „Vaši podaci nikada ne bi trebalo da napuštaju vašu zgradu." (locked wording + „ne bi trebalo"). Same treatment for the two other locked lines that appear embedded in longer sentences (assessment headline's trailing clause; differentiation body's comma form).
+- The locked table itself capitalizes Vas/Vašu mid-sentence in some rows but writes „vašu zgradu"/„vašem trošku" lowercase in others; locked lines kept exactly as written, and my own translations use capital-V persiranje consistently. Flagged so Rade can normalize later if he wants — changing locked lines wasn't my call.
+- OG image is ONE static site-wide image (the plan explicitly allows this) and carries the EN hero headline — an SR share will show an EN card. Making an SR variant is a 10-minute follow-up if Rade wants it.
+- JSON-LD `Offer` prices (3000/4500 EUR) are on the page as public copy since Phase 5 — not a new disclosure, just machine-readable.
+- `/xx` 404 fix required `dynamicParams = false` + a locale guard in `getContent` (details in DONE) — behavior-preserving vs. Phase 2 (404), needed only because the root layout moved.
+
+OPEN TODOs INTRODUCED:
+- SR case studies: `/sr/work/*` serves EN prose with SR chrome. Decision for Rade — translate the 5 MDX files (new `content/work/sr/` or per-file variants) or ship v1 with EN case studies.
+- OG image SR variant (see DEVIATIONS) — optional.
+- Carried, unchanged: LinkedIn URL (still `"#"`+omitted from sameAs), booking tool (mailto stand-in), privacy legal review, APR matični broj/PIB, two case metrics (cosmetics, agritech), archive-rag latency number.
+
+NEXT STEP:
+- Rade reviews: (1) the SR translation quality page-by-page, (2) chrome labels + credibility-strip labels, (3) the sovereignty-heading modal treatment, (4) EN-case-studies-on-/sr decision, (5) OG card look. Then Phase 8: Deploy + Analytics (static export, Cloudflare Workers, `_redirects` for `/` → `/en`, Cloudflare Web Analytics, styled 404, pre-launch TODO sweep). Post-deploy: run the hosted Google Rich Results test on the live URLs.
+
 ### 006 — Phase 6: About, Contact, Privacy — 2026-07-12
 STATUS: DONE
 COMMITS: ba4ccd2 (code + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 RESOLVED DECISIONS FROM RADE (applied before/during this phase):
-- **Domain confirmed:** `radosavbrdar.com` is canonical; `radebrdar.com` will 301 to it. Pure DNS/deploy concern, no code change here — noting for Phase 8, which already plans domain + redirect rules.
+- **Domain confirmed:** `radosavbrdar.com` is canonical. ~~`radebrdar.com` will 301 to it~~ — **[CORRECTED 2026-07-12, per Rade at Phase 7 start: only `radosavbrdar.com` was registered; there is no `radebrdar.com` and no 301 redirect to plan for.]** Pure DNS/deploy concern, no code change here — noting for Phase 8, which already plans domain + redirect rules.
 - **Contact email confirmed:** `hello@radosavbrdar.com` (resolves the Contact-page TODO). Added `lib/site.ts` (`CONTACT_EMAIL`, `CONTACT_MAILTO`) as the single source for this fact, since it now appears in `content/en/{home,assessment,contact,privacy}.ts` — four content files, not the "few similar lines" threshold, enough to risk drift if it's ever revised again.
 - Applied it to Phase 3's four `href="#"` CTAs in `content/en/home.ts`: `cta.links` "Email" → resolved mailto (TODO fully closed); hero "Book a call" and `cta.links` "Book a call" → mailto too, but via the booking-tool fallback logic (point 4 below), not the email resolution itself — that's what "hero excluded, see 4" meant. `cta.links` "LinkedIn" stays `"#"` (still open, point 3).
 - **LinkedIn:** still TODO, left flagged in `content/en/contact.ts` and `content/en/home.ts`.

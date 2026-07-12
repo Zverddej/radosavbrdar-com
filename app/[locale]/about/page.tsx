@@ -1,5 +1,23 @@
+import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
+import { ui } from "@/content/ui";
 import type { Locale } from "@/lib/i18n";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const content = getContent(locale, "about");
+  return pageMetadata({
+    locale,
+    path: "/about",
+    title: ui[locale].labels.about,
+    description: `${content.hero.headline} ${content.hero.body}`,
+  });
+}
 
 export default async function AboutPage({
   params,

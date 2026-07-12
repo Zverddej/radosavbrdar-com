@@ -1,6 +1,9 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import StatusStrip from "@/components/StatusStrip";
 import { getContent } from "@/lib/content";
+import { pageMetadata, personJsonLd, PERSON_ID, jsonLdString } from "@/lib/seo";
+import { ui } from "@/content/ui";
 import type { Locale } from "@/lib/i18n";
 import type { CTALink } from "@/content/types";
 
@@ -8,6 +11,21 @@ import type { CTALink } from "@/content/types";
 // and "mailto:..." links pass through unchanged.
 function href(locale: Locale, link: CTALink): string {
   return link.href.startsWith("/") ? `/${locale}${link.href}` : link.href;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const content = getContent(locale, "assessment");
+  return pageMetadata({
+    locale,
+    path: "/ai-assessment",
+    title: ui[locale].labels.assessment,
+    description: content.hero.body,
+  });
 }
 
 export default async function AiAssessmentPage({
@@ -18,8 +36,45 @@ export default async function AiAssessmentPage({
   const { locale } = await params;
   const content = getContent(locale, "assessment");
 
+  // Service JSON-LD per the Phase 7 plan. Prices are the resolved public
+  // priceLine facts (DEV-LOG 005), nothing invented; the offer descriptions
+  // are that line's own two variants.
+  const jsonLd = jsonLdString({
+    "@graph": [
+      personJsonLd(),
+      {
+        "@type": "Service",
+        name: ui[locale].labels.assessment,
+        description: content.hero.body,
+        provider: { "@id": PERSON_ID },
+        areaServed: "EU",
+        offers: [
+          {
+            "@type": "Offer",
+            price: "3000",
+            priceCurrency: "EUR",
+            description: locale === "sr" ? "na daljinu" : "remote",
+          },
+          {
+            "@type": "Offer",
+            price: "4500",
+            priceCurrency: "EUR",
+            description:
+              locale === "sr"
+                ? "sa danima na licu mesta (EU, put uračunat)"
+                : "with on-site days (EU, travel included)",
+          },
+        ],
+      },
+    ],
+  });
+
   return (
     <div className="mx-auto max-w-(--container-site) px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       {/* Hero */}
       <section className="py-(--spacing-section)">
         <h1 className="max-w-3xl text-3xl font-semibold text-text sm:text-4xl">

@@ -3,18 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { locales, type Locale } from "@/lib/i18n";
+import { ui, navLinks } from "@/content/ui";
 
 interface NavProps {
   locale: Locale;
 }
-
-const NAV_LINKS = [
-  { href: "/work", label: "Work" },
-  { href: "/services", label: "Services" },
-  { href: "/ai-assessment", label: "AI Assessment" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-] as const;
 
 function withLocale(pathname: string, locale: Locale): string {
   const segments = pathname.split("/");
@@ -51,6 +44,8 @@ function LocaleSwitcher({
 
 export default function Nav({ locale }: NavProps) {
   const pathname = usePathname();
+  const strings = ui[locale];
+  const links = navLinks(locale);
 
   return (
     <header className="relative border-b border-line">
@@ -64,8 +59,8 @@ export default function Nav({ locale }: NavProps) {
           </span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
-          {NAV_LINKS.map((link) => (
+        <nav aria-label={strings.navAriaLabel} className="hidden items-center gap-6 md:flex">
+          {links.map((link) => (
             <Link
               key={link.href}
               href={`/${locale}${link.href}`}
@@ -85,17 +80,17 @@ export default function Nav({ locale }: NavProps) {
             aria-controls="mobile-nav"
             className="cursor-pointer list-none font-mono text-xs text-muted marker:hidden [&::-webkit-details-marker]:hidden"
           >
-            <span className="group-open:hidden">menu</span>
-            <span className="hidden group-open:inline">close</span>
+            <span className="group-open:hidden">{strings.menuOpen}</span>
+            <span className="hidden group-open:inline">{strings.menuClose}</span>
           </summary>
 
           <nav
             id="mobile-nav"
-            aria-label="Primary"
+            aria-label={strings.navAriaLabel}
             className="absolute inset-x-0 top-full hidden border-t border-line bg-ink group-open:block"
           >
             <ul className="flex flex-col gap-1 px-6 py-4">
-              {NAV_LINKS.map((link) => (
+              {links.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={`/${locale}${link.href}`}

@@ -1,6 +1,24 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
+import { ui } from "@/content/ui";
 import type { Locale } from "@/lib/i18n";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const content = getContent(locale, "services");
+  return pageMetadata({
+    locale,
+    path: "/services",
+    title: ui[locale].labels.services,
+    description: content.intro,
+  });
+}
 
 export default async function ServicesPage({
   params,
