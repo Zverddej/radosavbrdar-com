@@ -1,5 +1,5 @@
 import type { ContactContent } from "@/content/types";
-import { CONTACT_MAILTO } from "@/lib/site";
+import { CONTACT_MAILTO, LINKEDIN_URL } from "@/lib/site";
 
 // Serbian translation of content/en/contact.ts per content-of-record PART 5
 // rules (see content/sr/home.ts header). Same open TODOs as the EN file:
@@ -12,8 +12,7 @@ export const contact: ContactContent = {
   },
   links: [
     { label: "Email", href: CONTACT_MAILTO },
-    // TODO: LinkedIn profile URL still not provided.
-    { label: "LinkedIn", href: "#" },
+    { label: "LinkedIn", href: LINKEDIN_URL },
     // TODO: booking tool still undecided (Cal.com/Calendly URL, or removed
     // for v1). Per Rade: for v1, point at the resolved contact email; a
     // booking link may replace this once the tool is picked.

@@ -1,5 +1,5 @@
 import type { HomeContent } from "@/content/types";
-import { CONTACT_MAILTO } from "@/lib/site";
+import { CONTACT_MAILTO, LINKEDIN_URL } from "@/lib/site";
 
 // Serbian translation of content/en/home.ts per content-of-record-completion.md
 // PART 5: srpska latinica, persiranje (Vi), locked-table lines byte-exact
@@ -78,8 +78,7 @@ export const home: HomeContent = {
     body: "Najbrži način da vidimo da li treba da sarađujemo jeste razgovor od 30 minuta. Bez prodajne priče, bez prezentacije — donesite problem.",
     links: [
       { label: "Email", href: CONTACT_MAILTO },
-      // TODO: LinkedIn profile URL not yet provided (content-of-record PART 3).
-      { label: "LinkedIn", href: "#" },
+      { label: "LinkedIn", href: LINKEDIN_URL },
       // TODO: booking tool still undecided; points at the resolved contact
       // email for v1 per Rade, may become a booking link later.
       { label: "Zakažite razgovor", href: CONTACT_MAILTO },

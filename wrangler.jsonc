@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers static assets -- no Worker script, assets only
+  // (Phase 8 plan). Workers Builds runs `npm run build` (static export to
+  // ./out) and then `npx wrangler deploy`.
+  "name": "radosavbrdar-com",
+  "compatibility_date": "2026-07-12",
+  "assets": {
+    "directory": "./out",
+    // Serve our exported 404.html (app/global-not-found.tsx) with a 404
+    // status for unknown paths.
+    "not_found_handling": "404-page"
+  }
+}

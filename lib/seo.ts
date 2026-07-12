@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Locale } from "@/lib/i18n";
-import { SITE_URL, CONTACT_EMAIL } from "@/lib/site";
+import { SITE_URL, CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
 
 // Shared Phase 7 SEO plumbing: canonical + hreflang alternates per page, OG
 // defaults, and the JSON-LD entities that appear on more than one page.
@@ -54,8 +54,8 @@ export function pageMetadata({
 
 // JSON-LD ---------------------------------------------------------------
 // Facts only from the content of record: name, studio, Sombor/Serbia,
-// resolved contact email, "working across the EU". LinkedIn is deliberately
-// absent from sameAs -- the URL is still an open TODO, not to be invented.
+// resolved contact email, "working across the EU", and the LinkedIn
+// profile (resolved by Rade, Phase 8).
 
 export const PERSON_ID = `${SITE_URL}/#person`;
 export const STUDIO_ID = `${SITE_URL}/#studio`;
@@ -67,6 +67,7 @@ export function personJsonLd() {
     name: "Radosav Brdar",
     url: SITE_URL,
     email: `mailto:${CONTACT_EMAIL}`,
+    sameAs: [LINKEDIN_URL],
     address: {
       "@type": "PostalAddress",
       addressLocality: "Sombor",

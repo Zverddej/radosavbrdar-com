@@ -30,6 +30,53 @@ NEXT STEP:
 
 -->
 
+### 008 — Phase 8: Deploy + Analytics — 2026-07-12
+STATUS: DONE (repo side; the three dashboard steps that need Rade's Cloudflare account are listed under NEXT STEP and are the only thing between this commit and a live site)
+COMMITS: pending
+MODEL: Fable 5 / Claude Code
+
+RESOLVED DECISIONS FROM RADE (given at phase start):
+- **LinkedIn URL:** `https://www.linkedin.com/in/radosav-brdar-aa643538/` — `LINKEDIN_URL` in `lib/site.ts`; applied to the CTA links in `content/{en,sr}/{home,contact}.ts` (all four `href: "#"` placeholders gone — zero `href="#"` left anywhere, verified in rendered output) and to JSON-LD `Person.sameAs`. Closes the TODO open since Phase 3.
+- **Domain:** `radosavbrdar.com` sole domain, DNS on Cloudflare, apex canonical; `www` → apex via a zone-level Redirect Rule (Rade's step 3 below — not an asset `_redirects` rule, since it's cross-host).
+- **TODOs explicitly ACCEPTED for v1 launch** (per the plan's pre-launch checklist rule "resolved *or explicitly accepted*"): archive-rag query latency, cosmetics-brand metric, agritech-platform metric, legal-ai municipality naming (stays sector-level), APR matični broj/PIB in imprint, privacy legal review, booking tool (mailto stands). Code comments kept; none rendered to visitors (re-verified: no "TODO" string in any exported HTML).
+- **Queued post-launch follow-up (do not start until Rade schedules it):** SR translation refinements from Rade's review + SR case-study translations + SR OG card, as one pass.
+
+DONE:
+- **Static export works — no OpenNext adapter needed.** `output: "export"` in `next.config.ts`; MDX did not block it (plain `export const frontmatter` objects, no server features), so the plan's preferred path applies. Only friction: `app/sitemap.ts`/`app/robots.ts` need `export const dynamic = "force-static"` under export (added; they were static in behavior already).
+- `proxy.ts` deleted (unsupported under export, was planned as temporary since Phase 2). Replaced by `public/_redirects` → `/ /en 301` (exported into `out/`). Note: proxy answered 307; the static rule is 301 (permanent is correct for a canonical locale root — flagged since it's a behavior change).
+- `wrangler.jsonc` — assets-only Worker: `assets: { directory: "./out", not_found_handling: "404-page" }`, no `main`, `compatibility_date: 2026-07-12`.
+- `app/global-not-found.tsx` — styled 404 with full Blueprint Terminal chrome (real `Nav`/`Footer` EN chrome, `StatusStrip` `status: 404 · page not found`, bilingual body line, links to both locale homes). Uses Next's `global-not-found` convention (experimental flag `experimental.globalNotFound`) — its documented use case is literally this app's structure (root layout inside the `[locale]` dynamic segment, so no static root layout exists to compose a classic `not-found.tsx` from). Exports as `out/404.html`, which `not_found_handling: "404-page"` serves with a 404 status. `robots: noindex`.
+- `components/Nav.tsx` — `usePathname() ?? \`/${locale}\`` guard: pathname is null when prerendering outside a matched route (the global 404), which would have crashed the locale switcher.
+- `components/AnalyticsBeacon.tsx` — Cloudflare Web Analytics beacon (cookieless), rendered ONLY when `NEXT_PUBLIC_CF_BEACON_TOKEN` is set at build time; wired into `app/[locale]/layout.tsx` and the 404 page. Without the token a build ships zero analytics code (verified both ways: token absent → no `cloudflareinsights` string in output; test token → beacon script with correct `data-cf-beacon` JSON).
+- `.gitignore` — added `/.wrangler/` (wrangler dev scratch).
+
+ACCEPTANCE CHECK:
+- [x] *(pre-launch checklist)* Lighthouse ≥ 95 across categories on Home and Assessment — run against the actual export served by wrangler: Home `/en` = perf 96 / a11y 100 / best-practices 100 / SEO 100; Assessment = 97 / 100 / 100 / 100.
+- [x] *(pre-launch checklist)* 404 page styled — verified `out/404.html` carries nav/strip/footer, and wrangler serves it with HTTP 404 for `/bogus` and `/en/work/nonexistent`.
+- [x] *(pre-launch checklist)* All Phase 4–6 TODOs closed or explicitly accepted — LinkedIn + booking-email CLOSED; the seven items above ACCEPTED by Rade for v1.
+- [x] Full serving behavior verified locally under the real Workers assets runtime (`wrangler dev` on `out/`): `/` → 301 `/en`; all 24 pages 200 with correct canonical/hreflang/JSON-LD (scripted suite re-run against the export); `sitemap.xml`, `robots.txt`, OG image 200; no `Set-Cookie` on any response; `sameAs` = the LinkedIn URL; `npm run lint` — only the pre-existing Phase 1 StatusStrip finding (the 2 extra warnings were wrangler's own `.wrangler/tmp` scratch, now gitignored).
+- [→ Rade] Production URL live over HTTPS, both locales — needs Rade's Cloudflare account; exact steps in NEXT STEP. Not claimed as done.
+- [→ Rade] Analytics receiving events — beacon is implemented and verified to toggle with the env var; "receiving events" is checkable only after the token exists and the site is live.
+
+DEVIATIONS FROM PLAN:
+- `experimental.globalNotFound` flag — the only way to export a styled 404 given the Phase 7 root-layout-in-[locale] structure (the alternative was Next's chrome-less default 404). Experimental status flagged; if a future Next upgrade stabilizes/renames it, this is the one flag to revisit.
+- `_redirects` locale rule is 301 where proxy.ts was 307 (see DONE).
+- New files not in the plan's list: `components/AnalyticsBeacon.tsx` (two call sites: locale layout + 404) and the `.gitignore` line. `global-not-found.tsx`, `wrangler.jsonc`, `_redirects` are all plan-named or plan-implied.
+- 404 microcopy is invented chrome-level text (no 404 copy exists in any copy doc): "Page not found." / "Stranica ne postoji." / "Home" / „Početna" / strip value `404 · page not found`. Same category as nav labels — for Rade's review.
+- Local wrangler verification ran with `--compatibility-date 2026-05-03` (this machine's Node 20 caps wrangler at 4.86.0, whose runtime binary doesn't know dates past 2026-05-03). The committed `wrangler.jsonc` keeps `2026-07-12` — Cloudflare's production runtime and Workers Builds (Node 22 image) support it. Assets-only Workers have no compat-date-sensitive behavior here; the override changed nothing being tested.
+
+OPEN TODOs INTRODUCED:
+- None new in code. QUEUED (post-launch, per Rade — not started): SR refinement pass + SR case studies + SR OG card.
+- Carried as ACCEPTED for v1 (comments only, nothing rendered): the seven items listed under resolved decisions.
+
+NEXT STEP — Rade's Cloudflare dashboard steps (in order; ~15 min total):
+1. **Workers Builds (git-connected deploys):** Cloudflare dash → *Compute (Workers)* → *Create* → *Import a repository* → pick the `radosavbrdar.com` GitHub repo. Project name `radosavbrdar-com` (must match `wrangler.jsonc` `name`). Build command: `npm run build` · Deploy command: `npx wrangler deploy` (it reads `wrangler.jsonc`; there is no separate output-dir setting). Production branch: `main`; leave *preview URLs for non-production branches* enabled. First build should go green and give a `*.workers.dev` URL — check `/`→`/en` and the styled 404 there.
+2. **Custom domain:** the Worker → *Settings* → *Domains & Routes* → *Add* → *Custom domain* → `radosavbrdar.com`. Cloudflare creates the DNS record itself (zone is already on CF). HTTPS is automatic.
+3. **www → apex:** zone `radosavbrdar.com` → *DNS*: add a record for `www` (CNAME → `radosavbrdar.com`, proxied/orange-cloud) so requests for www terminate at Cloudflare. Then *Rules* → *Redirect Rules* → *Create rule* → "Redirect from WWW to root" template (or manually: IF hostname equals `www.radosavbrdar.com` THEN dynamic redirect 301 to `concat("https://radosavbrdar.com", http.request.uri.path)`, preserve query string).
+4. **Web Analytics:** dash → *Analytics & Logs* → *Web Analytics* → *Add a site* → `radosavbrdar.com`. Two options: (a) automatic setup (Cloudflare injects the beacon at the edge — zero code, fine), or (b) explicit snippet (matches this repo's ethos): copy the site's **token**, then Worker → *Settings* → *Variables (Build)* → add `NEXT_PUBLIC_CF_BEACON_TOKEN` = token → *Retry deployment*. Either way, no cookies are set (the privacy page's claim depends on staying with Web Analytics — no GA).
+5. **Post-launch verification (5 min):** `https://radosavbrdar.com/` 301→`/en`; `/en` + `/sr` load over HTTPS; `www.` redirects to apex; some `/bogus` URL shows the styled 404; Web Analytics dashboard shows page views; DevTools → Application → Cookies = empty. Then run Google's Rich Results test on `/en` and one case page (carried from DEV-LOG 007).
+Then: the queued post-launch SR pass, whenever Rade schedules it.
+
 ### 007 — Phase 7: SEO/GEO + Serbian Locale — 2026-07-12
 STATUS: DONE
 COMMITS: d9cfafd (code + this entry), follow-up hash-record commit

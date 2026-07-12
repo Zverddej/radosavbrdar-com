@@ -43,7 +43,10 @@ function LocaleSwitcher({
 }
 
 export default function Nav({ locale }: NavProps) {
-  const pathname = usePathname();
+  // usePathname() is null while prerendering outside a matched route (the
+  // global-not-found page) -- fall back to the locale root so the switcher
+  // still renders sane hrefs there.
+  const pathname = usePathname() ?? `/${locale}`;
   const strings = ui[locale];
   const links = navLinks(locale);
 

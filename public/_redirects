@@ -1,0 +1,4 @@
+# Locale root redirect -- replaces proxy.ts, which static export drops.
+# One explicit rule, per the Phase 8 plan. (www -> apex is a Cloudflare
+# zone-level Redirect Rule, not an asset rule -- see DEV-LOG 008.)
+/ /en 301

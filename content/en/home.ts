@@ -1,5 +1,5 @@
 import type { HomeContent } from "@/content/types";
-import { CONTACT_MAILTO } from "@/lib/site";
+import { CONTACT_MAILTO, LINKEDIN_URL } from "@/lib/site";
 
 // Verbatim from website-copy-tournament.md PART 5 -> HOME ("Own What You
 // Build"). The proof-strip cases themselves come from lib/work.ts
@@ -66,8 +66,7 @@ export const home: HomeContent = {
     body: "The fastest way to see if we should work together is a 30-minute call. No pitch, no deck — bring your problem.",
     links: [
       { label: "Email", href: CONTACT_MAILTO },
-      // TODO: LinkedIn profile URL not yet provided (content-of-record PART 3).
-      { label: "LinkedIn", href: "#" },
+      { label: "LinkedIn", href: LINKEDIN_URL },
       // TODO: booking tool still undecided; points at the resolved contact
       // email for v1 per Rade, may become a booking link later.
       { label: "Book a call", href: CONTACT_MAILTO },

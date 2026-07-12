@@ -8,3 +8,7 @@ export const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}`;
 // start: only radosavbrdar.com is registered). Used by metadata, JSON-LD,
 // sitemap and robots.
 export const SITE_URL = "https://radosavbrdar.com";
+
+// Resolved by Rade at Phase 8 start (closes the TODO open since Phase 3).
+export const LINKEDIN_URL =
+  "https://www.linkedin.com/in/radosav-brdar-aa643538/";

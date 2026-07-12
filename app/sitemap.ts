@@ -6,6 +6,9 @@ import { getAllCases } from "@/lib/work";
 // All routes x both locales, each entry carrying its hreflang alternates.
 // Static by construction (explicit route list + the case map), so it
 // survives the Phase 8 static export.
+// Required under output: "export" -- the route is static anyway.
+export const dynamic = "force-static";
+
 const routes = [
   "",
   "/services",

@@ -5,6 +5,7 @@ import { locales, isLocale, type Locale } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/site";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import AnalyticsBeacon from "@/components/AnalyticsBeacon";
 import "../globals.css";
 
 // This is the root layout (html/body live here, not in app/layout.tsx) --
@@ -72,6 +73,7 @@ export default async function LocaleLayout({
         <Nav locale={activeLocale} />
         <main className="flex-1">{children}</main>
         <Footer locale={activeLocale} />
+        <AnalyticsBeacon />
       </body>
     </html>
   );
