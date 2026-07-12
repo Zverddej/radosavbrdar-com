@@ -112,3 +112,44 @@ export interface AssessmentContent {
     links: CTALink[];
   };
 }
+
+export interface AboutContent {
+  hero: {
+    headline: string;
+    body: string;
+  };
+  arc: string[];
+  howIWork: {
+    heading: string;
+    items: {
+      heading: string;
+      body: string;
+    }[];
+  };
+  studio: {
+    body: string;
+  };
+}
+
+export interface ContactContent {
+  hero: {
+    headline: string;
+    body: string;
+  };
+  links: CTALink[];
+  identity: string[];
+}
+
+export interface PrivacyContent {
+  heading: string;
+  intro: string;
+  points: {
+    heading: string;
+    body: string;
+  }[];
+  questionsNote: string;
+  imprintHeading: string;
+  imprint: {
+    lines: string[];
+  };
+}

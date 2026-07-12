@@ -1,4 +1,5 @@
 import type { HomeContent } from "@/content/types";
+import { CONTACT_MAILTO } from "@/lib/site";
 
 // Verbatim from website-copy-tournament.md PART 5 -> HOME ("Own What You
 // Build"). The proof-strip cases themselves come from lib/work.ts
@@ -15,9 +16,9 @@ export const home: HomeContent = {
     identity: "Radosav Brdar · identitet studio · EU-based",
     ctas: [
       { label: "See the work", href: "/work" },
-      // TODO: "Book a call" destination pending Contact page booking-tool
-      // decision (Cal.com/Calendly URL, or removed for v1 -- content-of-record PART 3).
-      { label: "Book a call", href: "#" },
+      // TODO: booking tool still undecided; points at the resolved contact
+      // email for v1 per Rade, may become a booking link later.
+      { label: "Book a call", href: CONTACT_MAILTO },
     ],
   },
   sovereignty: {
@@ -64,14 +65,12 @@ export const home: HomeContent = {
     heading: "Someone probably sent you here.",
     body: "The fastest way to see if we should work together is a 30-minute call. No pitch, no deck — bring your problem.",
     links: [
-      // TODO: contact email undecided (rade@identitet.rs vs hello@radosavbrdar.com
-      // -- content-of-record PART 3); wire mailto: once confirmed.
-      { label: "Email", href: "#" },
+      { label: "Email", href: CONTACT_MAILTO },
       // TODO: LinkedIn profile URL not yet provided (content-of-record PART 3).
       { label: "LinkedIn", href: "#" },
-      // TODO: "Book a call" destination pending Contact page booking-tool
-      // decision (Cal.com/Calendly URL, or removed for v1 -- content-of-record PART 3).
-      { label: "Book a call", href: "#" },
+      // TODO: booking tool still undecided; points at the resolved contact
+      // email for v1 per Rade, may become a booking link later.
+      { label: "Book a call", href: CONTACT_MAILTO },
     ],
   },
 };

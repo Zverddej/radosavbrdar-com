@@ -1,4 +1,5 @@
 import type { AssessmentContent } from "@/content/types";
+import { CONTACT_MAILTO } from "@/lib/site";
 
 // Verbatim from ai-assessment-tournament.md PART 4 -> FINAL PAGE: /ai-assessment.
 //
@@ -8,6 +9,12 @@ import type { AssessmentContent } from "@/content/types";
 // exact on-site phrasing Rade resolved this TODO with. The founding-client
 // rate (2.000 EUR) stays off this page -- it's an explicitly private offer,
 // not public copy.
+//
+// Email/booking links below get the same DEV-LOG 006 treatment as Home's
+// (contact email resolved; booking tool still TODO, mailto: as the v1
+// fallback) -- Rade's instruction named Phase 3's four links specifically,
+// but this page carries the identical unresolved facts, so left inconsistent
+// it would read as a bug rather than an open TODO. Flagged in DEV-LOG 006.
 export const assessment: AssessmentContent = {
   hero: {
     headline:
@@ -15,7 +22,9 @@ export const assessment: AssessmentContent = {
     body: "A fixed-price engineering assessment. By day 8 you'll see a working search over a sample of your own documents. By day 14 you'll hold a deployment plan you own — whether we build it together or not.",
     priceLine:
       "Fixed price: 3.000 € (remote) · 4.500 € with on-site days (EU, travel included)",
-    cta: { label: "Book the assessment", href: "#" },
+    // TODO: booking tool still undecided; points at the resolved contact
+    // email for v1 per Rade, may become a booking link later.
+    cta: { label: "Book the assessment", href: CONTACT_MAILTO },
   },
   questions: [
     {
@@ -73,12 +82,10 @@ export const assessment: AssessmentContent = {
     heading: "One call to start.",
     body: "30 minutes, no pitch. We check fit, pick a sample of documents, and schedule day 1.",
     links: [
-      // TODO: booking-tool decision pending (Cal.com/Calendly URL, or removed
-      // for v1 -- content-of-record PART 3), same open item as Home's CTA.
-      { label: "Book the call", href: "#" },
-      // TODO: contact email undecided (rade@identitet.rs vs
-      // hello@radosavbrdar.com -- content-of-record PART 3).
-      { label: "Email", href: "#" },
+      // TODO: booking tool still undecided; points at the resolved contact
+      // email for v1 per Rade, may become a booking link later.
+      { label: "Book the call", href: CONTACT_MAILTO },
+      { label: "Email", href: CONTACT_MAILTO },
     ],
   },
 };

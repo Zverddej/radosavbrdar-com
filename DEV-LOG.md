@@ -30,6 +30,47 @@ NEXT STEP:
 
 -->
 
+### 006 — Phase 6: About, Contact, Privacy — 2026-07-12
+STATUS: DONE
+COMMITS: pending
+MODEL: Sonnet 5 / Claude Code
+
+RESOLVED DECISIONS FROM RADE (applied before/during this phase):
+- **Domain confirmed:** `radosavbrdar.com` is canonical; `radebrdar.com` will 301 to it. Pure DNS/deploy concern, no code change here — noting for Phase 8, which already plans domain + redirect rules.
+- **Contact email confirmed:** `hello@radosavbrdar.com` (resolves the Contact-page TODO). Added `lib/site.ts` (`CONTACT_EMAIL`, `CONTACT_MAILTO`) as the single source for this fact, since it now appears in `content/en/{home,assessment,contact,privacy}.ts` — four content files, not the "few similar lines" threshold, enough to risk drift if it's ever revised again.
+- Applied it to Phase 3's four `href="#"` CTAs in `content/en/home.ts`: `cta.links` "Email" → resolved mailto (TODO fully closed); hero "Book a call" and `cta.links` "Book a call" → mailto too, but via the booking-tool fallback logic (point 4 below), not the email resolution itself — that's what "hero excluded, see 4" meant. `cta.links` "LinkedIn" stays `"#"` (still open, point 3).
+- **LinkedIn:** still TODO, left flagged in `content/en/contact.ts` and `content/en/home.ts`.
+- **Booking tool:** still TODO. Per Rade, "Book a call"-type CTAs point at `CONTACT_MAILTO` for v1 with a comment noting a booking link may replace it. Applied to all such CTAs site-wide, including `content/en/assessment.ts`'s "Book the assessment" and "Book the call" (and its "Email" link) — Rade's instruction named Phase 3's four links specifically, but Phase 4's assessment page carries the identical unresolved facts (same email, same booking-tool gap); leaving it inconsistent would have read as a bug, not an open TODO. Flagging this as an inference beyond the literal instruction.
+- **Privacy/imprint:** implemented `content-of-record-completion.md` PART 4 verbatim, "[email]" → `hello@radosavbrdar.com`. Legal-review status and the APR matični broj/PIB gap are `TODO` code comments in `content/en/privacy.ts`, not rendered — confirmed via grep that no "TODO" string reaches any Phase 6 page's HTML.
+
+DONE:
+- `content/types.ts` — added `AboutContent`, `ContactContent`, `PrivacyContent`.
+- `content/en/about.ts` — verbatim from `content-of-record-completion.md` PART 2 (the "full copy" version, superseding the shorter tournament-doc draft). "How I work" renders as a real heading (it was bolded in the source, unlike the doc's own non-rendered organizational labels "Hero:"/"The arc:"/"The studio:").
+- `content/en/contact.ts` — verbatim from PART 3, with the resolved email/booking treatment above.
+- `content/en/privacy.ts` — verbatim from PART 4 (draft), resolved email, both remaining TODOs kept as comments only. Not explicitly listed as a file in the plan's Phase 6 Approach (only `app/[locale]/privacy/page.tsx` is named) — created it anyway for consistency with every other page's architecture (typed content file + `getContent()`, zero hardcoded copy in JSX) and because Phase 7's `content/sr/*.ts` mirroring needs the same shape this page has for every other route. Flagged as a deviation from the plan's literal file list.
+- `lib/site.ts` — `CONTACT_EMAIL` / `CONTACT_MAILTO` constants (see above).
+- `lib/content.ts` — registered `about`/`contact`/`privacy` in `ContentMap`.
+- `app/[locale]/about/page.tsx`, `app/[locale]/contact/page.tsx`, `app/[locale]/privacy/page.tsx` — new pages, all reading only from their content files.
+- Fixed a latent bug in `app/[locale]/page.tsx` and `app/[locale]/ai-assessment/page.tsx`'s `href()` helpers: they only special-cased the literal `"#"` placeholder, so a `mailto:` link introduced by this phase would have been wrongly locale-prefixed (`/en mailto:...`). Now anything not starting with `/` passes through unchanged.
+
+ACCEPTANCE CHECK:
+- [x] All three pages render — verified via curl (200 on `/en` and `/sr` for `about`/`contact`/`privacy`) and Puppeteer screenshots (desktop + mobile, all three).
+- [x] Footer links resolve — `/contact` and `/privacy` (already linked from Footer since Phase 2) now render real content instead of 404ing.
+- [x] Build passes — zero TS errors, all 6 new routes (3 pages × 2 locales) prerendered static.
+- [x] (carried standard) No horizontal overflow at 375px on any of the three pages; `npm run lint` shows only the pre-existing Phase 1 `StatusStrip.tsx` finding.
+- [x] Verified the email/booking resolution end-to-end: curl-grepped rendered HTML across Home, Assessment, and Contact — `mailto:hello@radosavbrdar.com` present everywhere expected, `href="#"` remains only on LinkedIn (both still-open items), no "TODO" string reaches any page's HTML.
+
+DEVIATIONS FROM PLAN:
+- Created `content/en/privacy.ts` though the plan's Phase 6 Approach only lists `app/[locale]/privacy/page.tsx` for Privacy (unlike About/Contact, which explicitly pair a content file with their page) — see DONE above for reasoning.
+- Extended the email/booking-tool resolution to Phase 4's `content/en/assessment.ts`, which Rade's instruction didn't explicitly name (it named "the four href='#' CTA links from Phase 3") — done for internal consistency, since the underlying facts are identical. Flagged above and here for visibility.
+- `lib/site.ts` is a new, small shared-constants file — not listed anywhere in the plan. Justified by the email fact now appearing in four content files; kept to two exported constants, no broader "site config" scope creep.
+
+OPEN TODOs INTRODUCED:
+- None new. Carried forward and still open: LinkedIn URL, booking-tool choice (mailto is the v1 stand-in per Rade), Privacy page's legal review, and the Imprint's APR matični broj/PIB. All exist only as code comments, never rendered.
+
+NEXT STEP:
+- Rade reviews About/Contact/Privacy (especially the "How I work" heading treatment and the mailto fallback for "Book a call") → then Phase 7: SEO/GEO + Serbian Locale (`generateMetadata` per page, JSON-LD, sitemap/robots, `content/sr/*.ts` full translation — domain is now confirmed, so canonical URLs can be set for real).
+
 ### 005 — Phase 5: Work System + Case Studies — 2026-07-12
 STATUS: DONE
 COMMITS: f94d2b4 (code + this entry), follow-up hash-record commit

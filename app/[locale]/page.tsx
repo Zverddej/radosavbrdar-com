@@ -6,9 +6,10 @@ import { getFeaturedCases } from "@/lib/work";
 import type { Locale } from "@/lib/i18n";
 import type { CTALink } from "@/content/types";
 
-// "#" is a TODO placeholder (see content/en/home.ts) -- never locale-prefix it.
+// Only site-relative paths get locale-prefixed -- "#" (TODO placeholder)
+// and "mailto:..." links pass through unchanged.
 function href(locale: Locale, link: CTALink): string {
-  return link.href === "#" ? link.href : `/${locale}${link.href}`;
+  return link.href.startsWith("/") ? `/${locale}${link.href}` : link.href;
 }
 
 export default async function Home({
