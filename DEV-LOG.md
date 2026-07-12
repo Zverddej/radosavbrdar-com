@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 008 — Phase 8: Deploy + Analytics — 2026-07-12
 STATUS: DONE (repo side; the three dashboard steps that need Rade's Cloudflare account are listed under NEXT STEP and are the only thing between this commit and a live site)
-COMMITS: pending
+COMMITS: 50a8009 (code + this entry), follow-up hash-record commit
 MODEL: Fable 5 / Claude Code
 
 RESOLVED DECISIONS FROM RADE (given at phase start):
