@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 007 — Phase 7: SEO/GEO + Serbian Locale — 2026-07-12
 STATUS: DONE
-COMMITS: pending
+COMMITS: d9cfafd (code + this entry), follow-up hash-record commit
 MODEL: Fable 5 / Claude Code
 
 RESOLVED DECISIONS FROM RADE (given at phase start):
