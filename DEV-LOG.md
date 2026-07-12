@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 006 — Phase 6: About, Contact, Privacy — 2026-07-12
 STATUS: DONE
-COMMITS: pending
+COMMITS: ba4ccd2 (code + this entry), follow-up hash-record commit
 MODEL: Sonnet 5 / Claude Code
 
 RESOLVED DECISIONS FROM RADE (applied before/during this phase):
