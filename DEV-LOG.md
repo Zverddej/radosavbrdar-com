@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 010 — Fix: mobile nav close-on-navigate, StatusStrip overflow, StatusStrip lint — 2026-07-13
 STATUS: DONE
-COMMITS: pending
+COMMITS: 792a40c
 MODEL: Claude Code (Sonnet 5)
 
 DONE:
