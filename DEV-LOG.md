@@ -30,6 +30,37 @@ NEXT STEP:
 
 -->
 
+### 010 — Fix: mobile nav close-on-navigate, StatusStrip overflow, StatusStrip lint — 2026-07-13
+STATUS: DONE
+COMMITS: pending
+MODEL: Claude Code (Sonnet 5)
+
+DONE:
+- `components/Nav.tsx` — mobile `<details>` no longer stays open after a client-side route change. Added a `detailsRef` + `useEffect(() => { detailsRef.current.open = false }, [pathname])`. Nav lives in the locale layout, not the page, so the `<details>` DOM node persists across navigations — its native `open` state was never being reset. Closing on *pathname change* (rather than on individual link `onClick`s) covers every way the URL can change from an open menu: a mobile-nav link tap, the locale switcher, and browser back/forward — all in one place, no per-link wiring. Native `<details>/<summary>` disclosure kept as the base, per the Phase 2 rebuild rationale (DEV-LOG 002) — this is additive (closing), not a replacement of the open/close mechanism itself.
+- `app/globals.css` + `components/StatusStrip.tsx` — replaced the `white-space: nowrap` + animated `max-width: Nch` type-in technique with a `clip-path: inset()` wipe reveal. The old technique forced every segment onto one unbroken line by construction, which is what overflowed 375px on long content (DEV-LOG 009's incidental finding, plus the same defect on case-study stack strips and the assessment timeline). `clip-path` reveals the segment's already-laid-out box without constraining its layout width, so normal word-wrapping inside a segment works at any viewport width; `steps(var(--chars), end)` timing is unchanged (~30ms/char, staggered by cumulative preceding length), so the animation still reads as "typing in." `prefers-reduced-motion: reduce` now sets `clip-path: none` (was `max-width: none`) — same instant-full-content behavior. Added `min-w-0` to each item's flex wrapper in `StatusStrip.tsx` so segments can actually shrink/wrap inside the outer `flex-wrap` row instead of being held to their content's max-content width.
+- `components/StatusStrip.tsx` — resolved the `react-hooks/immutability` warning flagged in DEV-LOG 002 (`elapsed += …` reassigned inside the component's `.map()`). Extracted a standalone `segmentDelaysMs()` helper (not a component, not a hook) that does the same prefix-sum mutation internally — the React Compiler lint only analyzes component/hook function bodies, so moving the mutation outside that scope resolves the warning without changing behavior. The component now precomputes `texts`/`delays` once and reads by index in the render `.map()`.
+
+ACCEPTANCE CHECK:
+- [x] Mobile menu closes after navigating via a menu link — verified with **real touch emulation**, not mouse clicks: Chrome DevTools Protocol `Input.dispatchTouchEvent` (touchStart/touchEnd) against `Emulation.setDeviceMetricsOverride({mobile:true})` + `Emulation.setTouchEmulationEnabled`, tapping the actual `<summary>` and link element coordinates (matches the Phase 2 process note's touch-emulation requirement — Puppeteer isn't a project dependency, so this session used the same CDP methods directly). Sequence: closed → tap summary → `open=true`, mobile-nav link visible → tap "Work" link → `location.pathname` changes `/en` → `/en/work` → `open=false`.
+- [x] Back/forward doesn't resurrect an open menu — separately verified: navigate `/en` → `/en/services`, open the menu by tapping `<summary>` (no link tapped), then a real history-back navigation (`Page.navigateToHistoryEntry` to the previous entry, i.e. the browser back button) → pathname returns to `/en`, `open=false`.
+- [x] Zero horizontal overflow at 375px, measured (not screenshotted) — CDP `Emulation.setDeviceMetricsOverride(width:375)` + `document.documentElement.scrollWidth`/`window.innerWidth` equality check plus a full-DOM `getBoundingClientRect()` sweep for any element with `rect.right > viewport`, run against the real Workers assets runtime (`wrangler dev` on a fresh `out/`) on all 25 rendered paths: both locales of Home, all 5 case-study pages, work index, ai-assessment, about, services, contact, privacy, and the 404 page. Zero overflow, zero offending elements, on every one. (First pass of manual screenshot spot-checks looked like overflow on the Home credibility strip — turned out to be the type-in animation still mid-reveal at the moment of capture, not overflow: `clip-path` doesn't affect layout, so the earlier scrollWidth measurement was already correct mid-animation; confirmed by re-checking at full animation completion.)
+- [x] Type-in animation still works with wrapping — visually confirmed on the longest real segment (`archive-rag` stack, 81 chars): wraps cleanly between words across 2 lines, `label:` stays attached to its value, reveals progressively via the new clip-path keyframes, settles fully revealed (`clip-path: inset(0px 0% 0px 0px)`) after the computed duration.
+- [x] `prefers-reduced-motion: reduce` still shows content instantly — CDP `Emulation.setEmulatedMedia({prefers-reduced-motion: reduce})`, checked ~0.3s after navigation: all segments already `clip-path: none`, fully visible, no wait for the animation.
+- [x] `npm run build` — zero TS errors, all 29 routes generated.
+- [x] `npm run lint` — zero errors/warnings on touched files (`components/Nav.tsx`, `components/StatusStrip.tsx`, `app/globals.css`); only the pre-existing, unrelated `.wrangler/tmp` scratch warnings remain (gitignored, not part of the app).
+
+DEVIATIONS FROM PLAN:
+- Rade's spec says "each label:value pair stays intact on one line." Taken literally, this is physically impossible at 375px for the longest real content (the `archive-rag` stack value alone is 81 characters — no font size at body-text scale fits that in ~327px of content width). Interpreted the instruction as: a pair never gets torn apart *between* label and value by the wrap logic, and different pairs never wrap onto shared lines with each other — but if a single pair's own text is longer than the viewport, ordinary word-wrap inside that one pair is preferable to the two explicitly-ruled-out alternatives (truncating or overflowing). Flagging this reading for Rade's confirmation; if word-wrap-within-a-pair is unwanted, the only remaining option under "no truncation, no overflow" is a responsive font-size reduction for StatusStrip on narrow screens, which weren't asked for and would need a separate decision.
+- Nav fix closes on every pathname change rather than adding an `onClick` to each mobile-nav `<Link>`. Smaller diff (one `useEffect`, no per-link wiring), and it's the only approach that also satisfies the back/forward requirement in the same stroke instead of needing separate handling for popstate.
+
+OPEN TODOs INTRODUCED:
+- None.
+
+NEXT STEP:
+- None pending from this fix. Rade to confirm the word-wrap-within-a-pair reading above; otherwise no further action.
+
+---
+
 ### 009 — Chore: 404 copy of record — 2026-07-12
 STATUS: DONE
 COMMITS: 6413bef

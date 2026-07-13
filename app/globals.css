@@ -61,14 +61,17 @@
 }
 
 @layer components {
-  /* StatusStrip type-in reveal: each segment is clipped to 0ch and
-     opens at ~30ms/char, staggered by the cumulative length of the
-     preceding segments (delays computed in the component). */
+  /* StatusStrip type-in reveal: each segment wipes in left-to-right via
+     clip-path (not a width/nowrap clip -- that forced every segment onto
+     one unbroken line and overflowed narrow viewports on long content, see
+     DEV-LOG 009/010). clip-path reveals the segment's already-laid-out box,
+     so normal text wrapping inside it keeps working at any width; ~30ms/char,
+     staggered by the cumulative length of the preceding segments (delays
+     computed in the component). */
   .status-segment {
     display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
-    max-width: 0;
+    min-width: 0;
+    clip-path: inset(0 100% 0 0);
     animation: status-typein calc(var(--chars) * 30ms)
       steps(var(--chars), end) var(--delay) forwards;
   }
@@ -80,10 +83,10 @@
 
   @keyframes status-typein {
     from {
-      max-width: 0;
+      clip-path: inset(0 100% 0 0);
     }
     to {
-      max-width: calc(var(--chars) * 1ch);
+      clip-path: inset(0 0 0 0);
     }
   }
 
@@ -97,7 +100,7 @@
     .status-segment,
     .status-separator {
       animation: none;
-      max-width: none;
+      clip-path: none;
       opacity: 1;
     }
   }

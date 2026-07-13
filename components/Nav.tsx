@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { locales, type Locale } from "@/lib/i18n";
@@ -49,6 +50,18 @@ export default function Nav({ locale }: NavProps) {
   const pathname = usePathname() ?? `/${locale}`;
   const strings = ui[locale];
   const links = navLinks(locale);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  // The mobile <details> is a persistent DOM node across client-side route
+  // changes (Nav lives in the layout, not the page) -- its native `open`
+  // state doesn't get reset on navigation. Closing it on every pathname
+  // change covers link taps, the locale switcher, and browser back/forward
+  // alike, without giving up the native disclosure from Phase 2.
+  useEffect(() => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false;
+    }
+  }, [pathname]);
 
   return (
     <header className="relative border-b border-line">
@@ -78,7 +91,7 @@ export default function Nav({ locale }: NavProps) {
         {/* Native <details>/<summary> disclosure: no JS required to open/close,
             so it can't be broken by a hydration race or a missed touch event
             on a real device (unlike a React onClick + useState toggle). */}
-        <details className="group md:hidden">
+        <details ref={detailsRef} className="group md:hidden">
           <summary
             aria-controls="mobile-nav"
             className="cursor-pointer list-none font-mono text-xs text-muted marker:hidden [&::-webkit-details-marker]:hidden"
