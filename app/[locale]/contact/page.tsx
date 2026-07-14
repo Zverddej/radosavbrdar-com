@@ -4,6 +4,7 @@ import { getContent } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { ui } from "@/content/ui";
 import type { Locale } from "@/lib/i18n";
+import MailtoNote from "@/components/MailtoNote";
 
 export async function generateMetadata({
   params,
@@ -36,12 +37,13 @@ export default async function ContactPage({
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-muted">{content.hero.body}</p>
 
-        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
+        <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-sm">
           {content.links.map((link) => (
             <Link key={link.label} href={link.href} className="text-text hover:text-amber">
               {link.label}
             </Link>
           ))}
+          <MailtoNote links={content.links} className="text-xs" />
         </div>
 
         <div className="mt-10 font-mono text-sm text-muted">

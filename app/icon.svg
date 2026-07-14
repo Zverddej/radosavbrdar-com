@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Blueprint Terminal monogram favicon. "RB" (both letters) was tested at
+       16x16 and read as an illegible smudge; a single "R" is the acceptable
+       fallback per spec and is what's shipped here (see DEV-LOG 011). -->
+  <rect width="32" height="32" rx="4" fill="#0E1420" />
+  <text
+    x="16.5"
+    y="18"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
+    font-weight="700"
+    font-size="25"
+    fill="#E8A33D"
+  >R</text>
+</svg>

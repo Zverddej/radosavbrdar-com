@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import StatusStrip from "@/components/StatusStrip";
 import CaseCard from "@/components/CaseCard";
+import MailtoNote from "@/components/MailtoNote";
 import { getContent } from "@/lib/content";
 import { getFeaturedCases } from "@/lib/work";
 import { pageMetadata, personJsonLd, studioJsonLd, jsonLdString } from "@/lib/seo";
@@ -58,7 +59,7 @@ export default async function Home({
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-muted">{content.hero.subline}</p>
         <p className="mt-4 font-mono text-sm text-muted">{content.hero.identity}</p>
-        <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
           {content.hero.ctas.map((cta, i) => (
             <Link
               key={cta.label}
@@ -72,6 +73,7 @@ export default async function Home({
               {cta.label}
             </Link>
           ))}
+          <MailtoNote links={content.hero.ctas} />
         </div>
       </section>
 
@@ -128,7 +130,7 @@ export default async function Home({
       <section className="border-t border-line py-(--spacing-section)">
         <h2 className="max-w-2xl text-2xl font-semibold text-text">{content.cta.heading}</h2>
         <p className="mt-4 max-w-2xl text-muted">{content.cta.body}</p>
-        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
+        <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-sm">
           {content.cta.links.map((link) => (
             <Link
               key={link.label}
@@ -138,6 +140,7 @@ export default async function Home({
               {link.label}
             </Link>
           ))}
+          <MailtoNote links={content.cta.links} className="text-xs" />
         </div>
       </section>
     </div>

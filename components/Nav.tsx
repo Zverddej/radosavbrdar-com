@@ -68,7 +68,7 @@ export default function Nav({ locale }: NavProps) {
       <div className="mx-auto flex max-w-(--container-site) items-center justify-between px-6 py-4">
         <Link href={`/${locale}`} className="flex min-w-0 items-baseline gap-2">
           <span className="truncate text-base font-semibold text-text sm:text-lg">
-            radosav brdar
+            Radosav Brdar
           </span>
           <span className="hidden font-mono text-xs text-muted sm:inline">
             identitet

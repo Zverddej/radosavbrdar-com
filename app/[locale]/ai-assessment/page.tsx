@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import StatusStrip from "@/components/StatusStrip";
+import MailtoNote from "@/components/MailtoNote";
 import { getContent } from "@/lib/content";
 import { pageMetadata, personJsonLd, PERSON_ID, jsonLdString } from "@/lib/seo";
 import { ui } from "@/content/ui";
@@ -89,6 +90,7 @@ export default async function AiAssessmentPage({
             {content.hero.cta.label}
           </Link>
           <p className="font-mono text-sm text-muted">{content.hero.priceLine}</p>
+          <MailtoNote links={[content.hero.cta]} />
         </div>
       </section>
 
@@ -144,12 +146,13 @@ export default async function AiAssessmentPage({
       <section className="border-t border-line py-(--spacing-section)">
         <h2 className="max-w-2xl text-2xl font-semibold text-text">{content.cta.heading}</h2>
         <p className="mt-4 max-w-2xl text-muted">{content.cta.body}</p>
-        <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm">
+        <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-sm">
           {content.cta.links.map((link) => (
             <Link key={link.label} href={href(locale, link)} className="text-text hover:text-amber">
               {link.label}
             </Link>
           ))}
+          <MailtoNote links={content.cta.links} className="text-xs" />
         </div>
       </section>
     </div>

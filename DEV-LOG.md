@@ -30,6 +30,38 @@ NEXT STEP:
 
 -->
 
+### 011 — Polish: logo capitalization, mailto email visibility, favicon — 2026-07-14
+STATUS: DONE
+COMMITS: pending
+MODEL: Claude Code (Sonnet 5)
+
+DONE:
+- `components/Nav.tsx` — logo wordmark changed from lowercase `radosav brdar` to title-case `Radosav Brdar`, per Rade's decision overriding the Phase 2 lowercase spec. The `identitet` mono suffix is untouched (still lowercase). Checked Footer and the 404 page for the same treatment: both already read `Radosav Brdar` (Footer's `imprintLine` in `content/ui.ts`, the 404 page's `<title>`, and all SEO/JSON-LD name fields in `lib/seo.ts` / `app/[locale]/layout.tsx` / `app/[locale]/page.tsx`) — Nav's logo span was the only lowercase wordmark instance in the codebase. Body copy and content files not touched (confirmed via grep — every other "radosav brdar" hit is inside prose, already title-case, e.g. imprint lines and about/contact copy).
+- `components/MailtoNote.tsx` (new) — small shared component: given a page's `CTALink[]`, renders `hello@radosavbrdar.com` (mono, muted) if and only if at least one link in the set is a `mailto:` link; renders nothing otherwise, so it disappears on its own if a booking tool ever replaces the still-TODO'd mailto CTAs (`content/{en,sr}/{home,contact,assessment}.ts`) rather than becoming a second, silently-stale TODO. Wired into all 5 mailto CTA locations: Home hero ("Book a call" button) and Home's bottom CTA block ("Email"/"Book a call"), Contact page's link row ("Email"/"Book a call"), and Assessment's hero ("Book the assessment" button, alongside the existing price line) and bottom CTA block ("Book the call"/"Email"). `mailto:` links themselves are unchanged.
+- `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png` (new) — Blueprint Terminal monogram favicon: `--color-ink` (#0E1420) background, `--color-amber` (#E8A33D) letterform, IBM Plex Mono weight 700 (with a system-monospace fallback stack, since a standalone favicon SVG is loaded directly by the browser chrome, outside the app's `next/font` self-hosting — most visitors won't have IBM Plex installed locally, so it'll render in their system monospace, which is still on-brand). `icon.svg` keeps a 2px-radius-equivalent rounded square (`rx="4"` at the file's 32×32 viewBox); the rasters (`favicon.ico` at 16/32/48, `apple-icon.png` at 180×180) use a full-bleed square per Apple's own convention (no rounding — iOS applies its own mask). All three are Next's file-based metadata convention (`app/` root), which auto-emits the `<link>` tags with no manual `<head>` wiring.
+
+ACCEPTANCE CHECK:
+- [x] Build clean — `npm run build`: zero TS errors, all routes generated including `/icon.svg` and `/apple-icon.png` as their own static routes.
+- [x] Favicon visible in browser tab on the production build — verified with an actual (non-headless) Chrome window under Xvfb, pointed at the real `wrangler dev` server (the Workers assets runtime serving the static `out/`), OS-level screenshot of the real tab strip: the amber "R" monogram renders crisply in the tab, next to the page title. (CDP screenshots alone can't show browser chrome/tabs — headless mode has none — so this required a real windowed browser instance for a true check, not just confirming the served bytes.)
+- [x] Icon legible at 16×16 — tested empirically before deciding: rendered `icon.svg` to a real 16×16 raster (matching actual favicon display size) via `cairosvg`, both as "RB" and as a single "R", nearest-neighbor-upscaled for pixel-accurate inspection. "RB" at 16×16 was a muddy, hard-to-parse smudge — two letterforms don't hold up at that pixel budget. **Shipped the single-"R" fallback**, which reads clearly and unambiguously at 16×16, per the acceptance criterion's own instruction for this exact situation.
+- [x] Logo capitalized in Nav/Footer/404 — `Radosav Brdar` confirmed rendering in the real-browser screenshot's tab title and Nav; Footer/404/SEO fields were already correct (see DONE).
+- [x] Email text visible near all mailto CTAs at 375px without overflow — CDP `Emulation.setDeviceMetricsOverride(width:375)` + `document.documentElement.scrollWidth`/`window.innerWidth` equality sweep across all 25 rendered paths (same method as DEV-LOG 010): zero overflow, unchanged from before this fix. Additionally screenshotted each of the 5 CTA locations individually at 375px: `hello@radosavbrdar.com` wraps cleanly onto its own line under the button/link row in every case, mono font, no truncation, no overflow.
+- [x] `npm run lint` — zero errors/warnings on touched files (`components/Nav.tsx`, `components/MailtoNote.tsx`, `app/[locale]/page.tsx`, `app/[locale]/contact/page.tsx`, `app/[locale]/ai-assessment/page.tsx`); only the pre-existing, unrelated `.wrangler/tmp` scratch warnings remain (gitignored).
+- [x] No rendered TODO strings — `grep -ri TODO` across the full `out/` build: zero matches (the TODO comments that exist are in source files' JS comments, which don't reach rendered HTML; unchanged by this commit).
+
+DEVIATIONS FROM PLAN:
+- `MailtoNote` is a new small shared component rather than five inline copies of the same span, since the exact same "show the address if the CTA is mailto" logic repeats across 3 page files / 5 locations — this is reuse of one real pattern, not a speculative abstraction.
+- Favicon SVG references `'IBM Plex Mono'` first in its font stack for visitors who happen to have it installed, but doesn't embed the font — embedding a base64 `@font-face` inside a favicon SVG is a known-fragile technique (inconsistent browser support for webfonts in favicon-rendering contexts) for a marginal win on a 1-2 character glyph; the system-monospace fallback preserves the intended style reliably everywhere instead.
+- Shipped the single-"R" fallback instead of "RB" — explicitly anticipated and pre-authorized by the task's own acceptance criteria.
+
+OPEN TODOs INTRODUCED:
+- None.
+
+NEXT STEP:
+- None pending from this polish pass.
+
+---
+
 ### 010 — Fix: mobile nav close-on-navigate, StatusStrip overflow, StatusStrip lint — 2026-07-13
 STATUS: DONE
 COMMITS: 792a40c
