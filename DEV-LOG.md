@@ -32,7 +32,7 @@ NEXT STEP:
 
 ### 011 — Polish: logo capitalization, mailto email visibility, favicon — 2026-07-14
 STATUS: DONE
-COMMITS: pending
+COMMITS: f3ccec5
 MODEL: Claude Code (Sonnet 5)
 
 DONE:
